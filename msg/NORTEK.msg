@@ -1,0 +1,75 @@
+string time_stamp
+string dvl_status
+float64 temperature
+float64 temperature_min
+float64 temperature_max
+string temperature_unit
+float64 sound_speed
+float64 sound_speed_min
+float64 sound_speed_max
+string sound_speed_unit
+float64 pressure
+float64 pressure_min
+float64 pressure_max
+string pressure_unit
+#
+#Beam based Velocity data
+float64 vel_min
+float64 vel_max
+string vel_unit
+float64 vel_1_data
+float64 vel_2_data
+float64 vel_3_data
+float64 vel_4_data
+float64 vel_1_status
+float64 vel_2_status
+float64 vel_3_status
+float64 vel_4_status
+#Beam based FOM data
+float64 fom_min
+float64 fom_max
+string fom_unit
+float64 fom_1_data
+float64 fom_2_data
+float64 fom_3_data
+float64 fom_4_data
+float64 fom_1_status
+float64 fom_2_status
+float64 fom_3_status
+float64 fom_4_status
+#Beam based Distance data
+float64 dist_min
+float64 dist_max
+string dist_unit
+float64 dist_1_data
+float64 dist_2_data
+float64 dist_3_data
+float64 dist_4_data
+float64 dist_1_status
+float64 dist_2_status
+float64 dist_3_status
+float64 dist_4_status
+#XYZ Velocity data
+float64 xyz_vel_min
+float64 xyz_vel_max
+string xyz_vel_unit
+float64 xyz_vel_1_data
+float64 xyz_vel_2_data
+float64 xyz_vel_3_data
+float64 xyz_vel_4_data
+float64 xyz_vel_1_status
+float64 xyz_vel_2_status
+float64 xyz_vel_3_status
+float64 xyz_vel_4_status
+#XYZ FOM data
+float64 xyz_fom_min
+float64 xyz_fom_max
+string xyz_fom_unit
+float64 xyz_fom_1_data
+float64 xyz_fom_2_data
+float64 xyz_fom_3_data
+float64 xyz_fom_4_data
+float64 xyz_fom_1_status
+float64 xyz_fom_2_status
+float64 xyz_fom_3_status
+float64 xyz_fom_4_status

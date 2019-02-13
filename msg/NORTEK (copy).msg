@@ -1,0 +1,137 @@
+string time_stamp
+string dvl_status
+float64 temperature
+float64 temperature_min
+float64 temperature_max
+string temperature_unit
+float64 sound_speed
+float64 sound_speed_min
+float64 sound_speed_max
+string sound_speed_unit
+float64 pressure
+float64 pressure_min
+float64 pressure_max
+string pressure_unit
+#
+#Bottom-Track, Beam based Velocity data
+float64 bottom_vel_min
+float64 bottom_vel_max
+string bottom_vel_unit
+float64 bottom_vel_1_data
+float64 bottom_vel_2_data
+float64 bottom_vel_3_data
+float64 bottom_vel_4_data
+float64 bottom_vel_1_status
+float64 bottom_vel_2_status
+float64 bottom_vel_3_status
+float64 bottom_vel_4_status
+#Bottom-Track, Beam based FOM data
+float64 bottom_fom_min
+float64 bottom_fom_max
+string bottom_fom_unit
+float64 bottom_fom_1_data
+float64 bottom_fom_2_data
+float64 bottom_fom_3_data
+float64 bottom_fom_4_data
+float64 bottom_fom_1_status
+float64 bottom_fom_2_status
+float64 bottom_fom_3_status
+float64 bottom_fom_4_status
+#Bottom-Track, Beam based Distance data
+float64 bottom_dist_min
+float64 bottom_dist_max
+string bottom_dist_unit
+float64 bottom_dist_1_data
+float64 bottom_dist_2_data
+float64 bottom_dist_3_data
+float64 bottom_dist_4_data
+float64 bottom_dist_1_status
+float64 bottom_dist_2_status
+float64 bottom_dist_3_status
+float64 bottom_dist_4_status
+#Bottom-Track, XYZ Velocity data
+float64 bottom_xyz_vel_min
+float64 bottom_xyz_vel_max
+string bottom_xyz_vel_unit
+float64 bottom_xyz_vel_1_data
+float64 bottom_xyz_vel_2_data
+float64 bottom_xyz_vel_3_data
+float64 bottom_xyz_vel_4_data
+float64 bottom_xyz_vel_1_status
+float64 bottom_xyz_vel_2_status
+float64 bottom_xyz_vel_3_status
+float64 bottom_xyz_vel_4_status
+#Bottom-Track, XYZ FOM data
+float64 bottom_xyz_fom_min
+float64 bottom_xyz_fom_max
+string bottom_xyz_fom_unit
+float64 bottom_xyz_fom_1_data
+float64 bottom_xyz_fom_2_data
+float64 bottom_xyz_fom_3_data
+float64 bottom_xyz_fom_4_data
+float64 bottom_xyz_fom_1_status
+float64 bottom_xyz_fom_2_status
+float64 bottom_xyz_fom_3_status
+float64 bottom_xyz_fom_4_status
+#
+#Water-Track, Beam based Velocity data
+float64 water_vel_min
+float64 water_vel_max
+string water_vel_unit
+float64 water_vel_1_data
+float64 water_vel_2_data
+float64 water_vel_3_data
+float64 water_vel_4_data
+float64 water_vel_1_status
+float64 water_vel_2_status
+float64 water_vel_3_status
+float64 water_vel_4_status
+#Water-Track, Beam based FOM data
+float64 water_fom_min
+float64 water_fom_max
+string water_fom_unit
+float64 water_fom_1_data
+float64 water_fom_2_data
+float64 water_fom_3_data
+float64 water_fom_4_data
+float64 water_fom_1_status
+float64 water_fom_2_status
+float64 water_fom_3_status
+float64 water_fom_4_status
+#Water-Track, Beam based Distance data
+float64 water_dist_min
+float64 water_dist_max
+string water_dist_unit
+float64 water_dist_1_data
+float64 water_dist_2_data
+float64 water_dist_3_data
+float64 water_dist_4_data
+float64 water_dist_1_status
+float64 water_dist_2_status
+float64 water_dist_3_status
+float64 water_dist_4_status
+#Water-Track, XYZ Velocity data
+float64 water_xyz_vel_min
+float64 water_xyz_vel_max
+string water_xyz_vel_unit
+float64 water_xyz_vel_1_data
+float64 water_xyz_vel_2_data
+float64 water_xyz_vel_3_data
+float64 water_xyz_vel_4_data
+float64 water_xyz_vel_1_status
+float64 water_xyz_vel_2_status
+float64 water_xyz_vel_3_status
+float64 water_xyz_vel_4_status
+#Water-Track, XYZ FOM data
+float64 water_xyz_fom_min
+float64 water_xyz_fom_max
+string water_xyz_fom_unit
+float64 water_xyz_fom_1_data
+float64 water_xyz_fom_2_data
+float64 water_xyz_fom_3_data
+float64 water_xyz_fom_4_data
+float64 water_xyz_fom_1_status
+float64 water_xyz_fom_2_status
+float64 water_xyz_fom_3_status
+float64 water_xyz_fom_4_status
+
