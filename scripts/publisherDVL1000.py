@@ -1,20 +1,169 @@
 #!/usr/bin/env python
-# license removed for brevity
 import rospy
+import json
+import time
+from websocket import create_connection
 from std_msgs.msg import String
+from dvl1000_ros.msg import DVL
 
-def talker():
-    pub = rospy.Publisher('chatter', String, queue_size=10)
-    rospy.init_node('talker', anonymous=True)
-    rate = rospy.Rate(10) # 10hz
-    while not rospy.is_shutdown():
-        hello_str = "hello world %s" % rospy.get_time()
-        rospy.loginfo(hello_str)
-        pub.publish(hello_str)
-        rate.sleep()
+#Websocket connection stuff. Make sure the websocket-client python library is installed.
+ws = create_connection("ws://10.42.0.96:10100", subprotocols=["data-transfer-nortek"])
+print("Connecting to DVL1000 via websocket...")
+result = ws.recv()
+print("Status: '%s'" % result)
 
+def cycleDVL():
+	global ws
+	retVal = ''
+	for n in range(1, 4):
+		result = ws.recv()
+		theData = json.loads(result)
+		if theData["id"] == 8219:
+			retVal = result
+	return retVal
+
+def publishDVLdata():
+
+	#Get JSON Data
+	theData = cycleDVL()
+
+	#Alternating data each time data is recieved. Each with unique ID(4123 and 8219) and dataset. Using IF to sort this out
+	#8219 seem to have additional information like Status, Speed of Sound, Temperature
+	#More data if more modes of tracking is turned on. IDs 4125 and 8221 belongs to Water Tracking mode.
+	#IDs 4123 and 8219 belongs to Bottom Track mode.
+
+	pubBottom = rospy.Publisher('manta/dvl', DVL, queue_size=10)
+	#pubWater = rospy.Publisher('sensors/dvl/water', DVL, queue_size=10)
+	rospy.init_node('DVL1000', anonymous=False)
+	rate = rospy.Rate(8) # 8hz
+
+	theDVL = DVL()
+
+	#Bottom-Trackingnumpy square
+	if theData["id"] == 8219:
+		#Parsing Variables
+		BottomID = theData["id"]
+		BottomMode = theData["name"]
+		BottomTime = theData["timeStampStr"]
+		BottomStatus = theData["frames"][1]["inputs"][0]["lines"][0]["data"][0]
+		
+		#Speed of Sound variables
+		BottomSpeedOfSoundMin = theData["frames"][2]["inputs"][0]["min"]
+		BottomSpeedOfSoundMax = theData["frames"][2]["inputs"][0]["max"]
+		BottomSpeedOfSoundUnit = theData["frames"][2]["inputs"][0]["units"]
+		BottomSpeedOfSoundData = theData["frames"][2]["inputs"][0]["lines"][0]["data"][0]
+		
+		#Temperature varliables
+		BottomTempMin = theData["frames"][3]["inputs"][0]["min"]
+		BottomTempMax = theData["frames"][3]["inputs"][0]["max"]
+		BottomTempUnit = theData["frames"][3]["inputs"][0]["units"]
+		BottomTempData = theData["frames"][3]["inputs"][0]["lines"][0]["data"][0]
+		
+		#Pressure variables
+		BottomPressureName = theData["frames"][4]["inputs"][0]["name"]
+		BottomPressureMin = theData["frames"][4]["inputs"][0]["min"]
+		BottomPressureMax = theData["frames"][4]["inputs"][0]["max"]
+		BottomPressureData = theData["frames"][4]["inputs"][0]["lines"][0]["data"][0]
+		BottomPressureUnit = theData["frames"][4]["inputs"][0]["units"]
+		
+		#Beam Velocity Variables
+		BottomBeamVelMin = theData["frames"][5]["inputs"][0]["min"]
+		BottomBeamVelMax = theData["frames"][5]["inputs"][0]["max"]
+		BottomBeamVelUnit = theData["frames"][5]["inputs"][0]["units"]
+		BottomBeamVel1Data = theData["frames"][5]["inputs"][0]["lines"][0]["data"][0]
+		BottomBeamVel2Data = theDatanumpy square["frames"][5]["inputs"][0]["lines"][1]["data"][0]
+		BottomBeamVel3Data = theData["frames"][5]["inputs"][0]["lines"][2]["data"][0]
+		BottomBeamVel4Data = theData["frames"][5]["inputs"][0]["lines"][3]["data"][0]
+		BottomBeamVel1Valid = theData["frames"][5]["inputs"][0]["lines"][0]["valid"]
+		BottomBeamVel2Valid = theData["frames"][5]["inputs"][0]["lines"][1]["valid"]
+		BottomBeamVel3Valid = theData["frames"][5]["inputs"][0]["lines"][2]["valid"]
+		BottomBeamVel4Valid = theData["frames"][5]["inputs"][0]["lines"][3]["valid"]
+		
+		#Beam FOM Variables
+		BottomBeamFomMin = theData["frames"][5]["inputs"][1]["min"]
+		BottomBeamFomMax = theData["frames"][5]["inputs"][1]["max"]
+		BottomBeamFomUnit = theData["frames"][5]["inputs"][1]["units"]
+		BottomBeamFom1Data = theData["frames"][5]["inputs"][1]["lines"][0]["data"][0]
+		BottomBeamFom2Data = theData["frames"][5]["inputs"][1]["lines"][1]["data"][0]
+		BottomBeamFom3Data = theData["frames"][5]["inputs"][1]["lines"][2]["data"][0]
+		BottomBeamFom4Data = theData["frames"][5]["inputs"][1]["lines"][3]["data"][0]
+		BottomBeamFom1Valid = theData["frames"][5]["inputs"][1]["lines"][0]["valid"]
+		BottomBeamFom2Valid = theData["frames"][5]["inputs"][1]["lines"][1]["valid"]
+		BottomBeamFom3Valid = theData["frames"][5]["inputs"][1]["lines"][2]["valid"]
+		BottomBeamFom4Valid = theData["frames"][5]["inputs"][1]["lines"][3]["valid"]
+		
+		#Beam Dist Variables
+		BottomBeamDistMin = theData["frames"][5]["inputs"][2]["min"]
+		BottomBeamDistMax = theData["frames"][5]["inputs"][2]["max"]
+		BottomBeamDistUnit = theData["frames"][5]["inputs"][2]["units"]
+		BottomBeamDist1Data = theData["frames"][5]["inputs"][2]["lines"][0]["data"][0]
+		BottomBeamDist2Data = theData["frames"][5]["inputs"][2]["lines"][1]["data"][0]
+		BottomBeamDist3Data = theData["frames"][5]["inputs"][2]["lines"][2]["data"][0]
+		BottomBeamDist4Data = theData["frames"][5]["inputs"][2]["lines"][3]["data"][0]
+		BottomBeamDist1Valid = theData["frames"][5]["inputs"][2]["lines"][0]["valid"]
+		BottomBeamDist2Valid = theData["frames"][5]["inputs"][2]["lines"][1]["valid"]
+		BottomBeamDist3Valid = theData["frames"][5]["inputs"][2]["lines"][2]["valid"]
+		BottomBeamDist4Valid = theData["frames"][5]["inputs"][2]["lines"][3]["valid"]
+		
+		#XYZ Velocity Variables
+		BottomXyzVelMin = theData["frames"][6]["inputs"][0]["min"]
+		BottomXyzVelMax = theData["frames"][6]["inputs"][0]["max"]
+		BottomXyzVelUnit = theData["frames"][6]["inputs"][0]["units"]
+		BottomXyzVel1Data = theData["frames"][6]["inputs"][0]["lines"][0]["data"][0]
+		BottomXyzVel2Data = theData["frames"][6]["inputs"][0]["lines"][1]["data"][0]
+		BottomXyzVel3Data = theData["frames"][6]["inputs"][0]["lines"][2]["data"][0]
+		BottomXyzVel4Data = theData["frames"][6]["inputs"][0]["lines"][3]["data"][0]
+		BottomXyzVel1Valid = theData["frames"][6]["inputs"][0]["lines"][0]["valid"]
+		BottomXyzVel2Valid = theData["frames"][6]["inputs"][0]["lines"][1]["valid"]
+		BottomXyzVel3Valid = theData["frames"][6]["inputs"][0]["lines"][2]["valid"]
+		BottomXyzVel4Valid = theData["frames"][6]["inputs"][0]["lines"][3]["valid"]
+		
+		#XYZ FOM Variables
+		BottomXyzFomMin = theData["frames"][6]["inputs"][1]["min"]
+		BottomXyzFomMax = theData["frames"][6]["inputs"][1]["max"]
+		BottomXyzFomUnit = theData["frames"][6]["inputs"][1]["units"]
+		BottomXyzFom1Data = theData["frames"][6]["inputs"][1]["lines"][0]["data"][0]
+		BottomXyzFom2Data = theData["frames"][6]["inputs"][1]["lines"][1]["data"][0]
+		BottomXyzFom3Data = theData["frames"][6]["inputs"][1]["lines"][2]["data"][0]
+		BottomXyzFom4Data = theData["frames"][6]["inputs"][1]["lines"][3]["data"][0]
+		BottomXyzFom1Valid = theData["frames"][6]["inputs"][1]["lines"][0]["valid"]
+		BottomXyzFom2Valid = theData["frames"][6]["inputs"][1]["lines"][1]["valid"]
+		BottomXyzFom3Valid = theData["frames"][6]["inputs"][1]["lines"][2]["valid"]
+		BottomXyzFom4Valid = theData["frames"][6]["inputs"][1]["lines"][3]["valid"]
+		
+		theDVL.header.stamp = rospy.Time.now()
+		theDVL.velocity.x = BottomXyzVel1Data
+		theDVL.velocity.y = BottomXyzVel2Data
+		if BottomXyzFom3Data > BottomXyzFom4Data:
+			theDVL.velocity.z = BottomXyzVel4Data
+			BottomXyzFomZbest = BottomXyzFom4Data
+		else:
+			theDVL.velocity.z = BottomXyzVel3Data
+			BottomXyzFomZbest = BottomXyzFom3Data
+			
+			
+		#Check page 49 for Z1 and Z2 and use FOM to evaluate each, 
+		#Covariance is a matrix with variance in the diagonal fields
+		#[var(x), cov(x,y) cov(x,z)|cov(x,y), var(y), cov(y,z)|cov(x,z), cov(y,z), var(z)]
+		#Concluded with using FOB² as an estimate for variance
+		#Try to get Variance out of FOM
+		
+		#pub = rospy.Publisher('sensors/dvl/bottom', NORTEK, queue_size=10)
+		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
+        pubBottom.publish(theDVL)
+	
+    
+	#while not rospy.is_shutdown():
+		#rospy.loginfo("Publishing sensor data from DVL %s" % rospy.get_time())
+		#pub.publish(theDVL)
+		#rate.sleep()
+	rate.sleep()
 if __name__ == '__main__':
-    try:
-        talker()
-    except rospy.ROSInterruptException:
-        pass
+	try:
+		while not rospy.is_shutdown():
+			publishDVLdata()
+			#time.sleep(1)
+	except rospy.ROSInterruptException:
+		pass
+        
+ws.close
