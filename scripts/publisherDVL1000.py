@@ -15,7 +15,7 @@ result = ws.recv()
 print("Status: '%s'" % result)
 
 backupjson = ''
-unknown = "-1" #The arbitrary value set for unknown values throughout the file
+unknown = -1 #The arbitrary value set for unknown values throughout the file
 
 def cycleDVL():
 	global ws
@@ -236,7 +236,7 @@ def publishDVLdata():
         theOdo.header.stamp = rospy.Time.now()
         theOdo.header.frame_id = "dvl_link"
         theOdo.child_frame_id = "dvl_link"
-        theOdo.twist.twist = (theDVL.velocity.x, theDVL.velocity.y, theDVL.velocity.z, unknown, unknown, unknown)
+        theOdo.twist.twist = [theDVL.velocity.x, theDVL.velocity.y, theDVL.velocity.z, unknown, unknown, unknown]
         theOdo.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
         pubOdo.publish(theOdo)
 	
