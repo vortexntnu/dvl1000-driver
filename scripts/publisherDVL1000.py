@@ -7,6 +7,7 @@ from std_msgs.msg import String
 from dvl1000_ros.msg import DVL
 from dvl1000_ros.msg import DVLBeam
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import FluidPressure
 
 #Websocket connection stuff. Make sure the websocket-client python library is installed.
 ws = create_connection("ws://10.42.0.96:10100", subprotocols=["data-transfer-nortek"])
@@ -44,6 +45,7 @@ def publishDVLdata():
 
 	pubBottom = rospy.Publisher('manta/dvl', DVL, queue_size=10)
 	pubOdo = rospy.Publisher('nav_msgs/Odometry', Odometry, queue_size=10)
+	pubPressure = rospy.Publisher('manta/Pressure', FluidPressure, queue_size=10)
 	#pubWater = rospy.Publisher('sensors/dvl/water', DVL, queue_size=10)
 	rospy.init_node('DVL1000', anonymous=False)
 	rate = rospy.Rate(8) # 8hz
@@ -51,6 +53,7 @@ def publishDVLdata():
 	theDVL = DVL()
 	theDVLBeam = DVLBeam()
 	theOdo = Odometry()
+	thePressure = FluidPressure()
 
 	#Bottom-Trackingnumpy square
 	if theData["id"] == 8219:
@@ -239,6 +242,13 @@ def publishDVLdata():
         theOdo.twist.twist = [theDVL.velocity.x, theDVL.velocity.y, theDVL.velocity.z, unknown, unknown, unknown]
         theOdo.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
         pubOdo.publish(theOdo)
+        
+        #Pressure topic
+        thePressure.header.stamp = rospy.Time.now()
+        thePressure.header.frame_id = "dvl_link"
+        thePressure.fluid_pressure = BottomPressureData * 10000 #Convert dbar to Pascal
+        thePressure.variance = 30*30 #Should do a more accurate meassurement of the variance
+        pubPressure.publish(thePressure)
 	
     
 	#while not rospy.is_shutdown():
