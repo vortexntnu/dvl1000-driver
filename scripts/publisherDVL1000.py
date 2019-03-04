@@ -239,7 +239,12 @@ def publishDVLdata():
         theOdo.header.stamp = rospy.Time.now()
         theOdo.header.frame_id = "dvl_link"
         theOdo.child_frame_id = "dvl_link"
-        theOdo.twist.twist = [theDVL.velocity.x, theDVL.velocity.y, theDVL.velocity.z, unknown, unknown, unknown]
+        theOdo.twist.twist.linear.x = theDVL.velocity.x
+        theOdo.twist.twist.linear.y = theDVL.velocity.y
+        theOdo.twist.twist.linear.z = theDVL.velocity.z
+        theOdo.twist.twist.angular.x = unknown
+        theOdo.twist.twist.angular.y = unknown
+        theOdo.twist.twist.angular.z = unknown
         theOdo.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
         pubOdo.publish(theOdo)
         
