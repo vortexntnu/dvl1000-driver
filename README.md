@@ -23,18 +23,16 @@ Once the library is ready, download the ROS package
     cd ~/catkin_ws
     catkin_make
 
-
-ghese
 ## Usage
 Make sure you remebered to update the IP adress in the script, so that it points to the DVL.
 Run the script using:
 
     #To run the publisher:
-    rosrun dvl1000_ros publisherDVL1000.os_em7180 py
+    rosrun dvl1000_ros publisherDVL1000.py
     
     #To run the listener:
 
     rosrun dvl1000_ros subscriberDVL1000.py
     
-# Documentationa
+# Documentation
 The node publishes data to the following topics: "manta/dvl", "manta/Pressure" and "nav_msgs/Odometry"
