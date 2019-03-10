@@ -28,6 +28,8 @@ def cycleDVL():
 			retVal = result
 	return retVal
 
+
+
 def publishDVLdata():
 	global unknown
 	global backupjson
@@ -43,8 +45,8 @@ def publishDVLdata():
 	#More data if more modes of tracking is turned on. IDs 4125 and 8221 belongs to Water Tracking mode.
 	#IDs 4123 and 8219 belongs to Bottom Track mode.
 
-	pubBottom = rospy.Publisher('manta/dvl', DVL, queue_size=10)
-	pubOdo = rospy.Publisher('nav_msgs/Odometry', Odometry, queue_size=10)
+	pubBottom = rospy.Publisher('manta/dvl_twist', DVL, queue_size=10)
+	pubOdo = rospy.Publisher('/manta/odom', Odometry, queue_size=10)
 	pubPressure = rospy.Publisher('manta/Pressure', FluidPressure, queue_size=10)
 	#pubWater = rospy.Publisher('sensors/dvl/water', DVL, queue_size=10)
 	rospy.init_node('DVL1000', anonymous=False)
@@ -245,8 +247,11 @@ def publishDVLdata():
         theOdo.twist.twist.angular.x = unknown
         theOdo.twist.twist.angular.y = unknown
         theOdo.twist.twist.angular.z = unknown
+	theOdo.pose.pose.position.z=-((BottomPressuseData*10000)-101325)/(997*9.81)
         theOdo.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
         pubOdo.publish(theOdo)
+
+
         
         #Pressure topic
         thePressure.header.stamp = rospy.Time.now()
