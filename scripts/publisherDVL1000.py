@@ -16,7 +16,7 @@ result = ws.recv()
 print("Status: '%s'" % result)
 
 backupjson = ''
-unknown = -1 #The arbitrary value set for unknown values throughout the file
+unknown = 0 #The arbitrary value set for unknown values throughout the file
 
 def cycleDVL():
 	global ws
@@ -234,31 +234,38 @@ def publishDVLdata():
 		
 		#pub = rospy.Publisher('sensors/dvl/bottom', NORTEK, queue_size=10)
 		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
-        pubBottom.publish(theDVL)
-        backupjson = getJson
+		pubBottom.publish(theDVL)
+		backupjson = getJson
         
-        #Odometry topic
-        theOdo.header.stamp = rospy.Time.now()
-        theOdo.header.frame_id = "dvl_link"
-        theOdo.child_frame_id = "dvl_link"
-        theOdo.twist.twist.linear.x = theDVL.velocity.x
-        theOdo.twist.twist.linear.y = theDVL.velocity.y
-        theOdo.twist.twist.linear.z = theDVL.velocity.z
-        theOdo.twist.twist.angular.x = unknown
-        theOdo.twist.twist.angular.y = unknown
-        theOdo.twist.twist.angular.z = unknown
-	theOdo.pose.pose.position.z=-((BottomPressuseData*10000)-101325)/(997*9.81)
-        theOdo.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
-        pubOdo.publish(theOdo)
+		#Odometry topic
+		theOdo.header.stamp = rospy.Time.now()
+		theOdo.header.frame_id = "dvl_link"
+		theOdo.child_frame_id = "dvl_link"
+		if theDVL.velocity.x != -32.768:
+			theOdo.twist.twist.linear.x = theDVL.velocity.x
+		if theDVL.velocity.y != -32.768:
+			theOdo.twist.twist.linear.y = theDVL.velocity.y
+		if theDVL.velocity.z != -32.768:
+			theOdo.twist.twist.linear.z = theDVL.velocity.z
+		theOdo.twist.twist.angular.x = unknown
+		theOdo.twist.twist.angular.y = unknown		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
+		pubBottom.publish(theDVL)
+		backupjson = getJson
+
+		theOdo.twist.twist.angular.z = unknown
+		theOdo.pose.pose.position.z=-((BottomPressureData*10000)-101325)/(997*9.81)
+		if (BottomXyzFom1Data != 10) and (BottomXyzFom2Data != 10) and (BottomXyzFomZbest != 10):
+			theOdo.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
+		pubOdo.publish(theOdo)
 
 
         
-        #Pressure topic
-        thePressure.header.stamp = rospy.Time.now()
-        thePressure.header.frame_id = "dvl_link"
-        thePressure.fluid_pressure = BottomPressureData * 10000 #Convert dbar to Pascal
-        thePressure.variance = 30*30 #Should do a more accurate meassurement of the variance
-        pubPressure.publish(thePressure)
+		#Pressure topic
+		thePressure.header.stamp = rospy.Time.now()
+		thePressure.header.frame_id = "dvl_link"
+		thePressure.fluid_pressure = BottomPressureData * 10000 #Convert dbar to Pascal
+		thePressure.variance = 30*30 #Should do a more accurate meassurement of the variance
+		pubPressure.publish(thePressure)
 	
     
 	#while not rospy.is_shutdown():
