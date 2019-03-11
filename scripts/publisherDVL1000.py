@@ -237,7 +237,7 @@ def publishDVLdata():
 		pubBottom.publish(theDVL)
 		backupjson = getJson
         
-        #Odometry topic
+		#Odometry topic
 		theOdo.header.stamp = rospy.Time.now()
 		theOdo.header.frame_id = "dvl_link"
 		theOdo.child_frame_id = "dvl_link"
@@ -248,7 +248,10 @@ def publishDVLdata():
 		if theDVL.velocity.z != -32.768:
 			theOdo.twist.twist.linear.z = theDVL.velocity.z
 		theOdo.twist.twist.angular.x = unknown
-		theOdo.twist.twist.angular.y = unknown
+		theOdo.twist.twist.angular.y = unknown		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
+		pubBottom.publish(theDVL)
+		backupjson = getJson
+
 		theOdo.twist.twist.angular.z = unknown
 		theOdo.pose.pose.position.z=-((BottomPressureData*10000)-101325)/(997*9.81)
 		if (BottomXyzFom1Data != 10) and (BottomXyzFom2Data != 10) and (BottomXyzFomZbest != 10):
@@ -257,12 +260,12 @@ def publishDVLdata():
 
 
         
-        #Pressure topic
-        thePressure.header.stamp = rospy.Time.now()
-        thePressure.header.frame_id = "dvl_link"
-        thePressure.fluid_pressure = BottomPressureData * 10000 #Convert dbar to Pascal
-        thePressure.variance = 30*30 #Should do a more accurate meassurement of the variance
-        pubPressure.publish(thePressure)
+		#Pressure topic
+		thePressure.header.stamp = rospy.Time.now()
+		thePressure.header.frame_id = "dvl_link"
+		thePressure.fluid_pressure = BottomPressureData * 10000 #Convert dbar to Pascal
+		thePressure.variance = 30*30 #Should do a more accurate meassurement of the variance
+		pubPressure.publish(thePressure)
 	
     
 	#while not rospy.is_shutdown():
