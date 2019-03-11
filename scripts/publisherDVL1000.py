@@ -234,8 +234,8 @@ def publishDVLdata():
 		
 		#pub = rospy.Publisher('sensors/dvl/bottom', NORTEK, queue_size=10)
 		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
-        pubBottom.publish(theDVL)
-        backupjson = getJson
+		pubBottom.publish(theDVL)
+		backupjson = getJson
         
         #Odometry topic
 		theOdo.header.stamp = rospy.Time.now()
