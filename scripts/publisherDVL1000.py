@@ -17,6 +17,7 @@ print("Status: '%s'" % result)
 
 backupjson = ''
 unknown = 0 #The arbitrary value set for unknown values throughout the file
+initZ = 0 #For resetting Z-value when initialized
 
 def cycleDVL():
 	global ws
@@ -253,7 +254,11 @@ def publishDVLdata():
 		backupjson = getJson
 
 		theOdo.twist.twist.angular.z = unknown
-		theOdo.pose.pose.position.z=-((BottomPressureData*10000)-101325)/(997*9.81)
+		global initZ
+		theOdo.pose.pose.position.z=-((BottomPressureData*10000)-101325)/(997*9.81) - initZ
+		if (initZ == 0):
+			initZ = theOdo.pose.pose.position.z
+			
 		if (BottomXyzFom1Data != 10) and (BottomXyzFom2Data != 10) and (BottomXyzFomZbest != 10):
 			theOdo.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
 		pubOdo.publish(theOdo)
