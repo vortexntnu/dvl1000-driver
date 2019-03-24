@@ -8,6 +8,8 @@ from dvl1000_ros.msg import DVL
 from dvl1000_ros.msg import DVLBeam
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import FluidPressure
+from geometry_msgs.msg import PoseWithCovarianceStamped
+from geometry_msgs.msg import TwistWithCovarianceStamped
 
 #Websocket connection stuff. Make sure the websocket-client python library is installed.
 ws = create_connection("ws://10.42.0.96:10100", subprotocols=["data-transfer-nortek"])
@@ -49,6 +51,8 @@ def publishDVLdata():
 	pubBottom = rospy.Publisher('manta/dvl_twist', DVL, queue_size=10)
 	pubOdo = rospy.Publisher('/manta/odom', Odometry, queue_size=10)
 	pubPressure = rospy.Publisher('manta/Pressure', FluidPressure, queue_size=10)
+	pubPosZ = rospy.Publisher('manta/pose_z', PoseWithCovarianceStamped, queue_size=10)
+	pubTwist = rospy.Publisher('manta/twist_dvl', TwistWithCovarianceStamped, queue_size=10)
 	#pubWater = rospy.Publisher('sensors/dvl/water', DVL, queue_size=10)
 	rospy.init_node('DVL1000', anonymous=False)
 	rate = rospy.Rate(8) # 8hz
@@ -57,6 +61,8 @@ def publishDVLdata():
 	theDVLBeam = DVLBeam()
 	theOdo = Odometry()
 	thePressure = FluidPressure()
+	thePoseZ = PoseWithCovarianceStamped()
+	theTwist = TwistWithCovarianceStamped()
 
 	#Bottom-Trackingnumpy square
 	if theData["id"] == 8219:
@@ -65,26 +71,26 @@ def publishDVLdata():
 		BottomMode = theData["name"]
 		BottomTime = theData["timeStampStr"]
 		BottomStatus = theData["frames"][1]["inputs"][0]["lines"][0]["data"][0]
-		
+
 		#Speed of Sound variables
 		BottomSpeedOfSoundMin = theData["frames"][2]["inputs"][0]["min"]
 		BottomSpeedOfSoundMax = theData["frames"][2]["inputs"][0]["max"]
 		BottomSpeedOfSoundUnit = theData["frames"][2]["inputs"][0]["units"]
 		BottomSpeedOfSoundData = theData["frames"][2]["inputs"][0]["lines"][0]["data"][0]
-		
+
 		#Temperature varliables
 		BottomTempMin = theData["frames"][3]["inputs"][0]["min"]
 		BottomTempMax = theData["frames"][3]["inputs"][0]["max"]
 		BottomTempUnit = theData["frames"][3]["inputs"][0]["units"]
 		BottomTempData = theData["frames"][3]["inputs"][0]["lines"][0]["data"][0]
-		
+
 		#Pressure variables
 		BottomPressureName = theData["frames"][4]["inputs"][0]["name"]
 		BottomPressureMin = theData["frames"][4]["inputs"][0]["min"]
 		BottomPressureMax = theData["frames"][4]["inputs"][0]["max"]
 		BottomPressureData = theData["frames"][4]["inputs"][0]["lines"][0]["data"][0]
 		BottomPressureUnit = theData["frames"][4]["inputs"][0]["units"]
-		
+
 		#Beam Velocity Variables
 		BottomBeamVelMin = theData["frames"][5]["inputs"][0]["min"]
 		BottomBeamVelMax = theData["frames"][5]["inputs"][0]["max"]
@@ -97,7 +103,7 @@ def publishDVLdata():
 		BottomBeamVel2Valid = theData["frames"][5]["inputs"][0]["lines"][1]["valid"]
 		BottomBeamVel3Valid = theData["frames"][5]["inputs"][0]["lines"][2]["valid"]
 		BottomBeamVel4Valid = theData["frames"][5]["inputs"][0]["lines"][3]["valid"]
-		
+
 		#Beam FOM Variables
 		BottomBeamFomMin = theData["frames"][5]["inputs"][1]["min"]
 		BottomBeamFomMax = theData["frames"][5]["inputs"][1]["max"]
@@ -110,7 +116,7 @@ def publishDVLdata():
 		BottomBeamFom2Valid = theData["frames"][5]["inputs"][1]["lines"][1]["valid"]
 		BottomBeamFom3Valid = theData["frames"][5]["inputs"][1]["lines"][2]["valid"]
 		BottomBeamFom4Valid = theData["frames"][5]["inputs"][1]["lines"][3]["valid"]
-		
+
 		#Beam Dist Variables
 		BottomBeamDistMin = theData["frames"][5]["inputs"][2]["min"]
 		BottomBeamDistMax = theData["frames"][5]["inputs"][2]["max"]
@@ -123,7 +129,7 @@ def publishDVLdata():
 		BottomBeamDist2Valid = theData["frames"][5]["inputs"][2]["lines"][1]["valid"]
 		BottomBeamDist3Valid = theData["frames"][5]["inputs"][2]["lines"][2]["valid"]
 		BottomBeamDist4Valid = theData["frames"][5]["inputs"][2]["lines"][3]["valid"]
-		
+
 		#XYZ Velocity Variables
 		BottomXyzVelMin = theData["frames"][6]["inputs"][0]["min"]
 		BottomXyzVelMax = theData["frames"][6]["inputs"][0]["max"]
@@ -136,7 +142,7 @@ def publishDVLdata():
 		BottomXyzVel2Valid = theData["frames"][6]["inputs"][0]["lines"][1]["valid"]
 		BottomXyzVel3Valid = theData["frames"][6]["inputs"][0]["lines"][2]["valid"]
 		BottomXyzVel4Valid = theData["frames"][6]["inputs"][0]["lines"][3]["valid"]
-		
+
 		#XYZ FOM Variables
 		BottomXyzFomMin = theData["frames"][6]["inputs"][1]["min"]
 		BottomXyzFomMax = theData["frames"][6]["inputs"][1]["max"]
@@ -149,7 +155,7 @@ def publishDVLdata():
 		BottomXyzFom2Valid = theData["frames"][6]["inputs"][1]["lines"][1]["valid"]
 		BottomXyzFom3Valid = theData["frames"][6]["inputs"][1]["lines"][2]["valid"]
 		BottomXyzFom4Valid = theData["frames"][6]["inputs"][1]["lines"][3]["valid"]
-		
+
 		theDVL.header.stamp = rospy.Time.now()
 		theDVL.header.frame_id = "dvl_link"
 		theDVL.velocity.x = BottomXyzVel1Data
@@ -160,14 +166,14 @@ def publishDVLdata():
 		else:
 			theDVL.velocity.z = BottomXyzVel3Data
 			BottomXyzFomZbest = BottomXyzFom3Data
-			
+
 		#Doing covariances
 		velocity_covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest]
-		
+
 		#Feeding message
 		theDVL.velocity_covariance = velocity_covariance
 		theDVL.altitude = ((BottomBeamDist1Data + BottomBeamDist2Data + BottomBeamDist3Data + BottomBeamDist4Data) / 4)
-		
+
 		#Individual beam data
 		beam1 = theDVLBeam
 		beam1.range = BottomBeamDist1Data
@@ -182,7 +188,7 @@ def publishDVLdata():
 		beam1.pose.pose.orientation.y = 0.211
 		beam1.pose.pose.orientation.z = -0.047
 		beam1.pose.pose.orientation.w = 0.953
-		
+
 		beam2 = theDVLBeam
 		beam2.range = BottomBeamDist2Data
 		beam2.range_covariance = 0.0001 #TODO: find accurate value
@@ -196,7 +202,7 @@ def publishDVLdata():
 		beam2.pose.pose.orientation.y = -0.211
 		beam2.pose.pose.orientation.z = 0.047
 		beam2.pose.pose.orientation.w = -0.953
-		
+
 		beam3 = theDVLBeam
 		beam3.range = BottomBeamDist3Data
 		beam3.range_covariance = 0.0001 #TODO: find accurate value
@@ -210,7 +216,7 @@ def publishDVLdata():
 		beam3.pose.pose.orientation.y = 0
 		beam3.pose.pose.orientation.z = 0.707
 		beam3.pose.pose.orientation.w = -0.641
-		
+
 		beam4 = theDVLBeam
 		beam4.range = BottomBeamDist4Data
 		beam4.range_covariance = 0.0001 #TODO: find accurate value
@@ -224,55 +230,74 @@ def publishDVLdata():
 		beam4.pose.pose.orientation.y = 0.299
 		beam4.pose.pose.orientation.z = 0.641
 		beam4.pose.pose.orientation.w = 0.707
-		
+
 		theDVL.beams = [beam1, beam2, beam3, beam4]
-			
-		#Check page 49 for Z1 and Z2 and use FOM to evaluate each, 
+
+		#Check page 49 for Z1 and Z2 and use FOM to evaluate each,
 		#Covariance is a matrix with variance in the diagonal fields
 		#[var(x), cov(x,y) cov(x,z)|cov(x,y), var(y), cov(y,z)|cov(x,z), cov(y,z), var(z)]
 		#Concluded with using FOB*FOB as an estimate for variance
 		#Try to get Variance out of FOM
-		
+
 		#pub = rospy.Publisher('sensors/dvl/bottom', NORTEK, queue_size=10)
 		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
 		pubBottom.publish(theDVL)
 		backupjson = getJson
-        
+
 		#Odometry topic
 		theOdo.header.stamp = rospy.Time.now()
-		theOdo.header.frame_id = "dvl_link"
+		theOdo.header.frame_id = "pressure_dvl"
 		theOdo.child_frame_id = "dvl_link"
-		if theDVL.velocity.x != -32.768:
+		theTwist.header.stamp = theOdo.header.stamp
+		thePoseZ.header.stamp= theOdo.header.stamp
+		theTwist.header.frame_id = "dvl_link"
+		thePoseZ.header.frame_id = "pressure"
+		if theDVL.velocity.x != -32.768002:
 			theOdo.twist.twist.linear.x = theDVL.velocity.x
-		if theDVL.velocity.y != -32.768:
+			theTwist.twist.twist.linear.x = theDVL.velocity.x
+			theOdo.pose.covariance=[unknown, unknown, unknown, unknown, unknown, unknown,
+									unknown, unknown, unknown, unknown, unknown, unknown,
+									unknown, unknown,0.01*(10**(-16)), unknown, unknown, unknown,
+									unknown, unknown, unknown, unknown, unknown, unknown,
+									unknown, unknown, unknown, unknown, unknown, unknown,
+									unknown, unknown, unknown, unknown, unknown, unknown]
+			thePoseZ.pose.covariance = theOdo.pose.covariance
+		if theDVL.velocity.y != -32.768002:
 			theOdo.twist.twist.linear.y = theDVL.velocity.y
-		if theDVL.velocity.z != -32.768:
-			theOdo.twist.twist.linear.z = theDVL.velocity.z
-		theOdo.twist.twist.angular.x = unknown
-		theOdo.twist.twist.angular.y = unknown		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
+			theTwist.twist.twist.linear.y = theDVL.velocity.y
+		if theDVL.velocity.z != -32.768002:
+			theOdo.twist.twist.linear.z = -theDVL.velocity.z
+			theTwist.twist.twist.linear.z = theDVL.velocity.z
+
+		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
 		pubBottom.publish(theDVL)
+
 		backupjson = getJson
 
-		theOdo.twist.twist.angular.z = unknown
+
 		global initZ
-		theOdo.pose.pose.position.z=-((BottomPressureData*10000)-101325)/(997*9.81) - initZ
-		if (initZ == 0) and (theDVL.velocity.x != -32.768):
+		theOdo.pose.pose.position.z=-((BottomPressureData*100000)-101325)/(997*9.81) - initZ
+		if (initZ == 0) and (theDVL.velocity.x != -32.768002):
 			initZ = theOdo.pose.pose.position.z
-			
+
 		if (BottomXyzFom1Data != 10) and (BottomXyzFom2Data != 10) and (BottomXyzFomZbest != 10):
 			theOdo.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
+			theTwist.twist.covariance = theOdo.twist.covariance
 		pubOdo.publish(theOdo)
+		pubTwist.publish(theTwist)
+		thePoseZ.pose.pose.position.z = theOdo.pose.pose.position.z
+		pubPosZ.publish(thePoseZ)
 
 
-        
+
 		#Pressure topic
 		thePressure.header.stamp = rospy.Time.now()
 		thePressure.header.frame_id = "dvl_link"
 		thePressure.fluid_pressure = BottomPressureData * 10000 #Convert dbar to Pascal
 		thePressure.variance = 30*30 #Should do a more accurate meassurement of the variance
 		pubPressure.publish(thePressure)
-	
-    
+
+
 	#while not rospy.is_shutdown():
 		#rospy.loginfo("Publishing sensor data from DVL %s" % rospy.get_time())
 		#pub.publish(theDVL)
@@ -285,5 +310,5 @@ if __name__ == '__main__':
 			#time.sleep(1)
 	except rospy.ROSInterruptException:
 		pass
-        
+
 ws.close
