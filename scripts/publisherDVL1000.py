@@ -256,7 +256,7 @@ def publishDVLdata():
 		theOdo.twist.twist.angular.z = unknown
 		global initZ
 		theOdo.pose.pose.position.z=-((BottomPressureData*10000)-101325)/(997*9.81) - initZ
-		if (initZ == 0):
+		if (initZ == 0) and (theDVL.velocity.x != -32.768):
 			initZ = theOdo.pose.pose.position.z
 			
 		if (BottomXyzFom1Data != 10) and (BottomXyzFom2Data != 10) and (BottomXyzFomZbest != 10):
