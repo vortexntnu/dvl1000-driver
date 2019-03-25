@@ -1,4 +1,4 @@
 <launch>
-	<node pkg="dvl1000_ros" type="publisherDVL1000.py" name="publisherDVL1000" />
-	<node pkg="dvl1000_ros" type="subscriberDVL1000.py" name="subscriberDVL1000" />
+	<node pkg="dvl1000_ros" type="twistDVL1000.py" name="twistDVL1000" />
+	<node pkg="dvl1000_ros" type="poseDVL1000.py" name="poseDVL1000" />
 </launch>
