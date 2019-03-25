@@ -48,10 +48,8 @@ def publishDVLdata():
     # IDs 4123 and 8219 belongs to Bottom Track mode.
 
     pubBottom = rospy.Publisher('manta/dvl_twist', DVL, queue_size=10)
-    pubPressure = rospy.Publisher(
-        'manta/Pressure', FluidPressure, queue_size=10)
-    pubPosZ = rospy.Publisher(
-        'manta/pose_z', PoseWithCovarianceStamped, queue_size=10)
+    pubPressure = rospy.Publisher('manta/Pressure', FluidPressure, queue_size=10)
+    pubPosZ = rospy.Publisher('manta/pose_z', PoseWithCovarianceStamped, queue_size=2)
     # pubWater = rospy.Publisher('sensors/dvl/water', DVL, queue_size=10)
     rospy.init_node('Pose_DVL1000', anonymous=False)
     rate = rospy.Rate(8)  # 8hz
@@ -154,7 +152,7 @@ def publishDVLdata():
         BottomXyzFom4Valid = theData["frames"][6]["inputs"][1]["lines"][3]["valid"]
 
         theDVL.header.stamp = rospy.Time.now()
-        theDVL.header.frame_id = "dvl_link"
+        theDVL.header.frame_id = "dvl_link1"
         theDVL.velocity.x = BottomXyzVel1Data
         theDVL.velocity.y = BottomXyzVel2Data
         if BottomXyzFom3Data > BottomXyzFom4Data:
