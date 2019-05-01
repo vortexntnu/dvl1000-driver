@@ -23,14 +23,12 @@ Once the library is ready, download the ROS package
     cd ~/catkin_ws
     catkin_make
 
-
-ghese
 ## Usage
 Make sure you remebered to update the IP adress in the script, so that it points to the DVL.
 Run the script using:
 
     #To run the publisher:
-    rosrun dvl1000_ros publisherDVL1000.ros_em7180 py
+    rosrun dvl1000_ros publisherDVL1000.py
     
     #To run the listener:
 
