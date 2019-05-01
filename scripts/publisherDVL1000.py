@@ -249,7 +249,8 @@ def publishDVLdata():
 		if theDVL.velocity.z != -32.768:
 			theOdo.twist.twist.linear.z = theDVL.velocity.z
 		theOdo.twist.twist.angular.x = unknown
-		theOdo.twist.twist.angular.y = unknown		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
+		theOdo.twist.twist.angular.y = unknown		
+		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
 		pubBottom.publish(theDVL)
 		backupjson = getJson
 
