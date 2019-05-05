@@ -242,11 +242,11 @@ def publishDVLdata():
 		theOdo.header.stamp = rospy.Time.now()
 		theOdo.header.frame_id = "dvl_link"
 		theOdo.child_frame_id = "dvl_link"
-		if theDVL.velocity.x != -32.768:
+		if (theDVL.velocity.x < 20.00) and (theDVL.velocity.x > -20.00):
 			theOdo.twist.twist.linear.x = theDVL.velocity.x
-		if theDVL.velocity.y != -32.768:
+		if (theDVL.velocity.y < 20.00) and (theDVL.velocity.y > -20.00):
 			theOdo.twist.twist.linear.y = theDVL.velocity.y
-		if theDVL.velocity.z != -32.768:
+		if (theDVL.velocity.z < 20.00) and (theDVL.velocity.z > -20.00):
 			theOdo.twist.twist.linear.z = theDVL.velocity.z
 		theOdo.twist.twist.angular.x = unknown
 		theOdo.twist.twist.angular.y = unknown		
