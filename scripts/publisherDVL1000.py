@@ -250,22 +250,21 @@ def publishDVLdata():
 			theOdo.twist.twist.linear.z = theDVL.velocity.z
 		theOdo.twist.twist.angular.x = unknown
 		theOdo.twist.twist.angular.y = unknown		
-		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
-		pubBottom.publish(theDVL)
-		backupjson = getJson
-
 		theOdo.twist.twist.angular.z = unknown
-		global initZ
-		theOdo.pose.pose.position.z=-((BottomPressureData*10000)-101325)/(997*9.81) - initZ
-		if (initZ == 0) and (theDVL.velocity.x != -32.768):
-			initZ = theOdo.pose.pose.position.z
-			
 		if (BottomXyzFom1Data != 10) and (BottomXyzFom2Data != 10) and (BottomXyzFomZbest != 10):
 			theOdo.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
+			
+
+		# Pressure convertion to depth
+		global initZ
+		theOdo.pose.pose.position.z=((BottomPressureData*10000)-101325)/(997*9.81) - initZ
+		if (initZ == 0) and (theDVL.velocity.x != -32.768):
+			initZ = theOdo.pose.pose.position.z
+			theOdo.pose.covariance[14] = 90 
+
 		pubOdo.publish(theOdo)
-
-
-        
+		
+		
 		#Pressure topic
 		thePressure.header.stamp = rospy.Time.now()
 		thePressure.header.frame_id = "dvl_link"
