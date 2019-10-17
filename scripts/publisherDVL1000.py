@@ -256,7 +256,7 @@ def publishDVLdata():
 
 		theOdo.twist.twist.angular.z = unknown
 		global initZ
-		theOdo.pose.pose.position.z=-((BottomPressureData*10000)-101325)/(997*9.81) - initZ
+		theOdo.pose.pose.position.z=-((BottomPressureData*10000)*10)/(997*9.81)
 		if (initZ == 0) and (theDVL.velocity.x != -32.768):
 			initZ = theOdo.pose.pose.position.z
 			
