@@ -7,7 +7,7 @@ from std_msgs.msg import String
 from dvl1000_ros.msg import DVL
 from dvl1000_ros.msg import DVLBeam
 from nav_msgs.msg import Odometry
-from sensor_msgs.msg import FluidPressure
+#from sensor_msgs.msg import FluidPressure
 
 #Websocket connection stuff. Make sure the websocket-client python library is installed.
 ws = create_connection("ws://10.42.0.96:10100", subprotocols=["data-transfer-nortek"])
@@ -17,7 +17,6 @@ print("Status: '%s'" % result)
 
 backupjson = ''
 unknown = 0 #The arbitrary value set for unknown values throughout the file
-initZ = 0 #For resetting Z-value when initialized
 
 def cycleDVL():
 	global ws
@@ -47,16 +46,19 @@ def publishDVLdata():
 	#IDs 4123 and 8219 belongs to Bottom Track mode.
 
 	pubBottom = rospy.Publisher('manta/dvl_twist', DVL, queue_size=10)
-	pubOdo = rospy.Publisher('/manta/odom', Odometry, queue_size=10)
-	pubPressure = rospy.Publisher('manta/Pressure', FluidPressure, queue_size=10)
-	#pubWater = rospy.Publisher('sensors/dvl/water', DVL, queue_size=10)
+	pubOdo = rospy.Publisher('/manta/dvl', Odometry, queue_size=10)
+	pubZ = rospy.Publisher('/manta/pressureZ',Odometry,queue_size=10)
+	#pubPressure = rospy.Publisher('manta/Pressure', FluidPressure, queue_size=10)
+	pubWater = rospy.Publisher('sensors/dvl/water', DVL, queue_size=10)
 	rospy.init_node('DVL1000', anonymous=False)
 	rate = rospy.Rate(8) # 8hz
 
+
+	theZ = Odometry()
 	theDVL = DVL()
 	theDVLBeam = DVLBeam()
 	theOdo = Odometry()
-	thePressure = FluidPressure()
+	#thePressure = FluidPressure()
 
 	#Bottom-Trackingnumpy square
 	if theData["id"] == 8219:
@@ -235,10 +237,10 @@ def publishDVLdata():
 		
 		#pub = rospy.Publisher('sensors/dvl/bottom', NORTEK, queue_size=10)
 		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
-		pubBottom.publish(theDVL)
+		#pubBottom.publish(theDVL)
 		backupjson = getJson
         
-		#Odometry topic
+		#Dvl sensor odometry topic
 		theOdo.header.stamp = rospy.Time.now()
 		theOdo.header.frame_id = "dvl_link"
 		theOdo.child_frame_id = "dvl_link"
@@ -254,23 +256,23 @@ def publishDVLdata():
 		if (BottomXyzFom1Data != 10) and (BottomXyzFom2Data != 10) and (BottomXyzFomZbest != 10):
 			theOdo.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
 			
-
-		# Pressure convertion to depth
-		global initZ
-		theOdo.pose.pose.position.z=((BottomPressureData*10000)-101325)/(997*9.81) - initZ
-		if (initZ == 0) and (theDVL.velocity.x != -32.768):
-			initZ = theOdo.pose.pose.position.z
-			theOdo.pose.covariance[14] = 90 
-
+		# Publish dvl sensor message
 		pubOdo.publish(theOdo)
-		
-		
+
+		# Pressure sensor 
+		theZ.header.stamp = rospy.Time.now()
+		theZ.header.frame_id = "pressure_link"
+		theZ.child_frame_id = "pressure_link"
+		theZ.pose.pose.position.z=-((BottomPressureData*10000)*10)/(997*9.81)
+		theZ.pose.covariance[14] = 0.001 # Change
+		pubZ.publish(theZ)
+
 		#Pressure topic
-		thePressure.header.stamp = rospy.Time.now()
-		thePressure.header.frame_id = "dvl_link"
-		thePressure.fluid_pressure = BottomPressureData * 10000 #Convert dbar to Pascal
-		thePressure.variance = 30*30 #Should do a more accurate meassurement of the variance
-		pubPressure.publish(thePressure)
+		#thePressure.header.stamp = rospy.Time.now()
+		#thePressure.header.frame_id = "dvl_link"
+		#thePressure.fluid_pressure = BottomPressureData * 10000 #Convert dbar to Pascal
+		#thePressure.variance = 30*30 #Should do a more accurate meassurement of the variance
+		#pubPressure.publish(thePressure)
 	
     
 	#while not rospy.is_shutdown():
@@ -278,6 +280,7 @@ def publishDVLdata():
 		#pub.publish(theDVL)
 		#rate.sleep()
 	rate.sleep()
+
 if __name__ == '__main__':
 	try:
 		while not rospy.is_shutdown():
