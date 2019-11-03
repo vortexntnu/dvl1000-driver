@@ -246,9 +246,9 @@ def publishDVLdata():
 		theOdo.child_frame_id = "dvl_link"
 		if theDVL.velocity.x < 15.00 and theDVL.velocity.x > -15.00:
 			theOdo.twist.twist.linear.x = theDVL.velocity.x
-		if theDVL.velocity.y < 15.00 and theDVL.velocity.y > 15.00:
+		if theDVL.velocity.y < 15.00 and theDVL.velocity.y > -15.00:
 			theOdo.twist.twist.linear.y = theDVL.velocity.y
-		if theDVL.velocity.z < 15.00 and theDVL.velocity.z > 15.00:
+		if theDVL.velocity.z < 15.00 and theDVL.velocity.z > -15.00:
 			theOdo.twist.twist.linear.z = theDVL.velocity.z
 		theOdo.twist.twist.angular.x = unknown
 		theOdo.twist.twist.angular.y = unknown		
