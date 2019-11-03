@@ -242,11 +242,11 @@ def publishDVLdata():
 		theOdo.header.stamp = rospy.Time.now()
 		theOdo.header.frame_id = "dvl_link"
 		theOdo.child_frame_id = "dvl_link"
-		if theDVL.velocity.x != -32.768:
+		if theDVL.velocity.x < 15.00 and theDVL.velocity.x > -15.00:
 			theOdo.twist.twist.linear.x = theDVL.velocity.x
-		if theDVL.velocity.y != -32.768:
+		if theDVL.velocity.y < 15.00 and theDVL.velocity.y > -15.00:
 			theOdo.twist.twist.linear.y = theDVL.velocity.y
-		if theDVL.velocity.z != -32.768:
+		if theDVL.velocity.z < 15.00 and theDVL.velocity.z > -15.00:
 			theOdo.twist.twist.linear.z = theDVL.velocity.z
 		theOdo.twist.twist.angular.x = unknown
 		theOdo.twist.twist.angular.y = unknown		
@@ -256,12 +256,8 @@ def publishDVLdata():
 			
 
 		# Pressure convertion to depth
-		global initZ
-		theOdo.pose.pose.position.z=((BottomPressureData*10000)-101325)/(997*9.81) - initZ
-		if (initZ == 0) and (theDVL.velocity.x != -32.768):
-			initZ = theOdo.pose.pose.position.z
-			theOdo.pose.covariance[14] = 90 
-
+		theOdo.pose.pose.position.z=-((BottomPressureData*10000*0.001084)-47.17)
+		theOdo.pose.covariance[14] = 0.01 
 		pubOdo.publish(theOdo)
 		
 		
