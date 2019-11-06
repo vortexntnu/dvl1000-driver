@@ -17,7 +17,9 @@ print("Status: '%s'" % result)
 
 backupjson = ''
 unknown = 0 #The arbitrary value set for unknown values throughout the file
-
+init = 0
+value = 0
+counter = 0
 def cycleDVL():
 	global ws
 	retVal = ''
@@ -33,6 +35,9 @@ def cycleDVL():
 def publishDVLdata():
 	global unknown
 	global backupjson
+	global init
+	global counter
+	global value
 	#Get JSON Data
 	getJson = cycleDVL()
 	try:
@@ -242,29 +247,33 @@ def publishDVLdata():
         
 		#Dvl sensor odometry topic
 		theOdo.header.stamp = rospy.Time.now()
-		theOdo.header.frame_id = "dvl_link"
+		theOdo.header.frame_id = "odom"
 		theOdo.child_frame_id = "dvl_link"
 		if theDVL.velocity.x < 15.00 and theDVL.velocity.x > -15.00:
 			theOdo.twist.twist.linear.x = theDVL.velocity.x
-		if theDVL.velocity.y < 15.00 and theDVL.velocity.y > 15.00:
+		if theDVL.velocity.y < 15.00 and theDVL.velocity.y > -15.00:
 			theOdo.twist.twist.linear.y = theDVL.velocity.y
-		if theDVL.velocity.z < 15.00 and theDVL.velocity.z > 15.00:
+		if theDVL.velocity.z < 15.00 and theDVL.velocity.z > -15.00:
 			theOdo.twist.twist.linear.z = theDVL.velocity.z
 		theOdo.twist.twist.angular.x = unknown
 		theOdo.twist.twist.angular.y = unknown		
 		theOdo.twist.twist.angular.z = unknown
 		if (BottomXyzFom1Data != 10) and (BottomXyzFom2Data != 10) and (BottomXyzFomZbest != 10):
-			theOdo.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
+			theOdo.twist.covariance = [10500*BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown,10500*BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown,10500*BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
 			
 		# Publish dvl sensor message
 		pubOdo.publish(theOdo)
 
 		# Pressure sensor 
 		theZ.header.stamp = rospy.Time.now()
-		theZ.header.frame_id = "pressure_link"
-		theZ.child_frame_id = "pressure_link"
-		theZ.pose.pose.position.z=-((BottomPressureData*10000)*10)/(997*9.81)
-		theZ.pose.covariance[14] = 0.001 # Change
+		theZ.header.frame_id = "odom" #pressure link
+		theZ.child_frame_id = "odom"  #pressure link
+		theZ.pose.pose.position.z=-(((BottomPressureData*10000)*10)/(997*9.81))-init
+		if init == 0:
+			init=theZ.pose.pose.position.z
+		theZ.pose.covariance[0] = 10000
+		theZ.pose.covariance[14] = 0.7 # Change
+		theZ.pose.covariance[7]  = 10000
 		pubZ.publish(theZ)
 
 		#Pressure topic
