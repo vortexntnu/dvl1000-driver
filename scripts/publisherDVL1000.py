@@ -265,16 +265,34 @@ def publishDVLdata():
 		pubOdo.publish(theOdo)
 
 		# Pressure sensor 
+		#theZ.header.stamp = rospy.Time.now()
+		#theZ.header.frame_id = "odom" #pressure link
+		#theZ.child_frame_id = "odom"  #pressure link
+		#theZ.pose.pose.position.z=-(((BottomPressureData*10000)*10)/(997*9.81))-init
+		#if init == 0:
+		#	init=theZ.pose.pose.position.z
+		#theZ.pose.covariance[0] = 10000
+		#theZ.pose.covariance[14] = 0.7 # Change
+		#theZ.pose.covariance[7]  = 10000
+		#pubZ.publish(theZ)
+		
+		# Pressure sensor 
 		theZ.header.stamp = rospy.Time.now()
-		theZ.header.frame_id = "odom" #pressure link
-		theZ.child_frame_id = "odom"  #pressure link
-		theZ.pose.pose.position.z=-(((BottomPressureData*10000)*10)/(997*9.81))-init
-		if init == 0:
-			init=theZ.pose.pose.position.z
-		theZ.pose.covariance[0] = 10000
-		theZ.pose.covariance[14] = 0.7 # Change
-		theZ.pose.covariance[7]  = 10000
-		pubZ.publish(theZ)
+		theZ.header.frame_id = "odom"
+		theZ.child_frame_id = "odom"
+		if counter < 10:
+			counter +=1
+			init += -((BottomPressureData*10000)*10)/(997*9.81)
+			if counter == 10:
+				average_value = init/10.0
+		if counter == 10:
+			theZ.pose.pose.position.z=-((BottomPressureData*10000)*10)/(997*9.81) - average_value
+			pubZ.publish(theZ)
+
+		
+		#theZ.pose.pose.position.z=-((BottomPressureData*10000)*10)/(997*9.81)
+		theZ.pose.covariance[14] = 0.001 # Change
+		#pubZ.publish(theZ)
 
 		#Pressure topic
 		#thePressure.header.stamp = rospy.Time.now()
