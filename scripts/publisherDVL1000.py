@@ -38,6 +38,7 @@ def publishDVLdata():
 	global init
 	global counter
 	global value
+	global average_value
 	#Get JSON Data
 	getJson = cycleDVL()
 	try:
