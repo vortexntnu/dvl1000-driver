@@ -35,4 +35,4 @@ Run the script using:
     rosrun dvl1000_ros subscriberDVL1000.py
     
 # Documentation
-The node publishes data to the following topics: "manta/dvl", "manta/Pressure" and "nav_msgs/Odometry"
+The node publishes data to the following topics: "/auv/dvl", "/auv/Pressure" and "nav_msgs/Odometry"

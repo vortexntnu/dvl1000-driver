@@ -46,9 +46,9 @@ def publishDVLdata():
 	#More data if more modes of tracking is turned on. IDs 4125 and 8221 belongs to Water Tracking mode.
 	#IDs 4123 and 8219 belongs to Bottom Track mode.
 
-	pubBottom = rospy.Publisher('manta/dvl_twist', DVL, queue_size=10)
-	pubOdo = rospy.Publisher('/manta/odom', Odometry, queue_size=10)
-	pubPressure = rospy.Publisher('manta/Pressure', FluidPressure, queue_size=10)
+	pubBottom = rospy.Publisher('/auv/dvl_twist', DVL, queue_size=10)
+	pubOdo = rospy.Publisher('/auv/odom', Odometry, queue_size=10)
+	pubPressure = rospy.Publisher('/auv/Pressure', FluidPressure, queue_size=10)
 	#pubWater = rospy.Publisher('sensors/dvl/water', DVL, queue_size=10)
 	rospy.init_node('DVL1000', anonymous=False)
 	rate = rospy.Rate(8) # 8hz
