@@ -16,7 +16,7 @@ def subscriberDVL1000():
 	# run simultaneously.
 	rospy.init_node('subscriberDVL1000', anonymous=False)
 
-	rospy.Subscriber("manta/dvl", DVL, callBottom)
+	rospy.Subscriber("/auv/dvl", DVL, callBottom)
 
 	# spin() simply keeps python from exiting until this node is stopped
 	rospy.spin()
