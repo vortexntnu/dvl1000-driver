@@ -9,15 +9,6 @@ from dvl1000_ros.msg import DVLBeam
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import FluidPressure
 
-#Websocket connection stuff. Make sure the websocket-client python library is installed.
-ws = create_connection("ws://10.42.0.96:10100", subprotocols=["data-transfer-nortek"])
-print("Connecting to DVL1000 via websocket...")
-result = ws.recv()
-print("Status: '%s'" % result)
-
-backupjson = ''
-unknown = 0 #The arbitrary value set for unknown values throughout the file
-initZ = 0 #For resetting Z-value when initialized
 
 def cycleDVL():
 	global ws
@@ -50,8 +41,6 @@ def publishDVLdata():
 	pubOdo = rospy.Publisher('/auv/odom', Odometry, queue_size=10)
 	pubPressure = rospy.Publisher('/auv/Pressure', FluidPressure, queue_size=10)
 	#pubWater = rospy.Publisher('sensors/dvl/water', DVL, queue_size=10)
-	rospy.init_node('DVL1000', anonymous=False)
-	rate = rospy.Rate(8) # 8hz
 
 	theDVL = DVL()
 	theDVLBeam = DVLBeam()
@@ -281,9 +270,24 @@ def publishDVLdata():
 	rate.sleep()
 if __name__ == '__main__':
 	try:
+		rospy.init_node('DVL1000', anonymous=False)
+		rate = rospy.Rate(8) # 8hz
+  
+		websocket_address = rospy.get_param("/dvl/websocket_address", "ws://192.168.0.96:10100")
+  
+		#Websocket connection stuff. Make sure the websocket-client python library is installed.
+		ws = create_connection(websocket_address, subprotocols=["data-transfer-nortek"])
+		print("Connecting to DVL1000 via websocket...")
+		result = ws.recv()
+		print("Status: '%s'" % result)
+
+		backupjson = ''
+		unknown = 0 #The arbitrary value set for unknown values throughout the file
+		initZ = 0 #For resetting Z-value when initialized
+  
 		while not rospy.is_shutdown():
 			publishDVLdata()
-			#time.sleep(1)
+			
 	except rospy.ROSInterruptException:
 		pass
         
