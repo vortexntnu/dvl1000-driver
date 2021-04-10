@@ -231,14 +231,17 @@ def publishDVLdata():
 		theOdo.header.stamp = rospy.Time.now()
 		theOdo.header.frame_id = "dvl_link"
 		theOdo.child_frame_id = "dvl_link"
-		if abs(theDVL.velocity.x) < 10:
+		if abs(theDVL.velocity.x) < 10 and abs(theDVL.velocity.y) < 10 and abs(theDVL.velocity.z) < 10:
 			theOdo.twist.twist.linear.x = theDVL.velocity.x
-		if abs(theDVL.velocity.y) < 10:
 			theOdo.twist.twist.linear.y = theDVL.velocity.y
-		if abs(theDVL.velocity.z) < 10:
 			theOdo.twist.twist.linear.z = theDVL.velocity.z
+		else:
+			rospy.logdebug(
+				"Invalid DVL velocity data x: %f, y: %f, z: %f" % (theDVL.velocity.x, theDVL.velocity.y, theDVL.velocity.z)
+			)
+		
 		theOdo.twist.twist.angular.x = unknown
-		theOdo.twist.twist.angular.y = unknown		
+		theOdo.twist.twist.angular.y = unknown	
 		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
 		pubBottom.publish(theDVL)
 		backupjson = getJson
@@ -246,8 +249,11 @@ def publishDVLdata():
 		theOdo.twist.twist.angular.z = unknown
 		global initZ
 		theOdo.pose.pose.position.z=-((BottomPressureData*10000)*10)/(997*9.81)
-		if (initZ == 0) and (theDVL.velocity.x != -32.768):
+		if (initZ == 0) and (abs(theDVL.velocity.x) < 10):
 			initZ = theOdo.pose.pose.position.z
+			rospy.logdebug(
+				"InitZ set to: %f" % (initZ)
+			)
 			
 		if (BottomXyzFom1Data != 10) and (BottomXyzFom2Data != 10) and (BottomXyzFomZbest != 10):
 			theOdo.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
