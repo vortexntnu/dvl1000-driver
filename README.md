@@ -4,9 +4,10 @@ ROS package, based on python, to read data from the Nortek DVL1000 and feed it t
 ## Input and Output
 
 Publishes
-* __dvl/dvl_msg__ linear velocities, altitude and beam data (custom DVL msg)
-* __dvl/odom__ odometry containing only linear velocities (nav_msgs/Odometry)
-* __dvl/pressure__ fluid pressure (sensor_msgs/FluidPressure)
+* __/dvl/dvl_msg__ linear velocities, altitude and beam data (custom DVL msg)
+* __/dvl/odom__ odometry containing only linear velocities (nav_msgs/Odometry)
+* __/dvl/pressure__ fluid pressure (sensor_msgs/FluidPressure)
+* __/dvl/altitude__ distance above ground (std_msgs/Float64)
 
 dvl/msg contains extreme outliers when the dvl struggles to lock on ground. This can happen when the distance to ground is outside the working range of 20cm to 70m. 
 

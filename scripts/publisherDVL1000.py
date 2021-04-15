@@ -8,6 +8,7 @@ from dvl1000_ros.msg import DVL
 from dvl1000_ros.msg import DVLBeam
 from geometry_msgs.msg import TwistWithCovarianceStamped
 from sensor_msgs.msg import FluidPressure
+from std_msgs.msg import Float64
 
 
 def cycleDVL():
@@ -36,9 +37,7 @@ def publishDVLdata():
     # More data if more modes of tracking is turned on. IDs 4125 and 8221 belongs to Water Tracking mode.
     # IDs 4123 and 8219 belongs to Bottom Track mode.
 
-    pubBottom = rospy.Publisher("dvl/dvl_msg", DVL, queue_size=1)
-    twist_pub = rospy.Publisher("dvl/twist", TwistWithCovarianceStamped, queue_size=1)
-    pubPressure = rospy.Publisher("dvl/pressure", FluidPressure, queue_size=1)
+    
     # pubWater = rospy.Publisher('sensors/dvl/water', DVL, queue_size=10)
 
     theDVL = DVL()
@@ -326,6 +325,9 @@ def publishDVLdata():
         )  # Should do a more accurate meassurement of the variance
         pubPressure.publish(thePressure)
 
+		# altitude topic
+        altitude_pub.publish(Float64(theDVL.altitude))
+
 
 
 if __name__ == "__main__":
@@ -345,6 +347,11 @@ if __name__ == "__main__":
 	backupjson = ""
 	unknown = 0  # The arbitrary value set for unknown values throughout the file
 	initZ = 0  # For resetting Z-value when initialized
+
+	pubBottom = rospy.Publisher("dvl/dvl_msg", DVL, queue_size=1)
+	twist_pub = rospy.Publisher("dvl/twist", TwistWithCovarianceStamped, queue_size=1)
+	pubPressure = rospy.Publisher("dvl/pressure", FluidPressure, queue_size=1)
+	altitude_pub = rospy.Publisher("dlv/altitude", Float64, queue_size=1)
 
 	while not rospy.is_shutdown():
 		publishDVLdata()
