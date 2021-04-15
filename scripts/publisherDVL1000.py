@@ -6,7 +6,7 @@ from websocket import create_connection
 from std_msgs.msg import String
 from dvl1000_ros.msg import DVL
 from dvl1000_ros.msg import DVLBeam
-from nav_msgs.msg import Odometry
+from geometry_msgs.msg import TwistWithCovarianceStamped
 from sensor_msgs.msg import FluidPressure
 
 
@@ -37,13 +37,13 @@ def publishDVLdata():
     # IDs 4123 and 8219 belongs to Bottom Track mode.
 
     pubBottom = rospy.Publisher("dvl/dvl_msg", DVL, queue_size=1)
-    pubOdo = rospy.Publisher("dvl/odom", Odometry, queue_size=1)
+    twist_pub = rospy.Publisher("dvl/twist", TwistWithCovarianceStamped, queue_size=1)
     pubPressure = rospy.Publisher("dvl/pressure", FluidPressure, queue_size=1)
     # pubWater = rospy.Publisher('sensors/dvl/water', DVL, queue_size=10)
 
     theDVL = DVL()
     theDVLBeam = DVLBeam()
-    theOdo = Odometry()
+    twist_msg = TwistWithCovarianceStamped()
     thePressure = FluidPressure()
 
     # Bottom-Trackingnumpy square
@@ -253,17 +253,17 @@ def publishDVLdata():
         backupjson = getJson
 
         # Odometry topic
-        theOdo.header.stamp = rospy.Time.now()
-        theOdo.header.frame_id = "dvl_link"
-        theOdo.child_frame_id = "dvl_link"
+        twist_msg.header.stamp = rospy.Time.now()
+        twist_msg.header.frame_id = "dvl_link"
+        twist_msg.child_frame_id = "dvl_link"
         if (
             abs(theDVL.velocity.x) < 10
             and abs(theDVL.velocity.y) < 10
             and abs(theDVL.velocity.z) < 10
         ):
-            theOdo.twist.twist.linear.x = theDVL.velocity.x
-            theOdo.twist.twist.linear.y = theDVL.velocity.y
-            theOdo.twist.twist.linear.z = theDVL.velocity.z
+            twist_msg.twist.twist.linear.x = theDVL.velocity.x
+            twist_msg.twist.twist.linear.y = theDVL.velocity.y
+            twist_msg.twist.twist.linear.z = theDVL.velocity.z
         else:
             rospy.logdebug(
                 "Invalid DVL velocity data x: %f, y: %f, z: %f"
@@ -275,7 +275,7 @@ def publishDVLdata():
             and (BottomXyzFom2Data != 10)
             and (BottomXyzFomZbest != 10)
         ):
-            theOdo.twist.covariance = [
+            twist_msg.twist.covariance = [
                 BottomXyzFom1Data * BottomXyzFom1Data,
                 unknown,
                 unknown,
@@ -313,7 +313,7 @@ def publishDVLdata():
                 unknown,
                 unknown,
             ]
-        pubOdo.publish(theOdo)
+        twist_pub.publish(twist_msg)
 
         # Pressure topic
         thePressure.header.stamp = rospy.Time.now()
