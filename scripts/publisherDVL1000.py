@@ -37,9 +37,9 @@ def publishDVLdata():
 	#More data if more modes of tracking is turned on. IDs 4125 and 8221 belongs to Water Tracking mode.
 	#IDs 4123 and 8219 belongs to Bottom Track mode.
 
-	pubBottom = rospy.Publisher('/auv/dvl_twist', DVL, queue_size=10)
-	pubOdo = rospy.Publisher('/auv/odom', Odometry, queue_size=10)
-	pubPressure = rospy.Publisher('/auv/Pressure', FluidPressure, queue_size=10)
+	pubBottom = rospy.Publisher('dvl/', DVL, queue_size=1)
+	pubOdo = rospy.Publisher('dvl/odom', Odometry, queue_size=1)
+	pubPressure = rospy.Publisher('dvl/Pressure', FluidPressure, queue_size=1)
 	#pubWater = rospy.Publisher('sensors/dvl/water', DVL, queue_size=10)
 
 	theDVL = DVL()
@@ -223,7 +223,7 @@ def publishDVLdata():
 		#Try to get Variance out of FOM
 		
 		#pub = rospy.Publisher('sensors/dvl/bottom', NORTEK, queue_size=10)
-		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
+		rospy.logdebug("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
 		pubBottom.publish(theDVL)
 		backupjson = getJson
         
@@ -242,9 +242,6 @@ def publishDVLdata():
 		
 		theOdo.twist.twist.angular.x = unknown
 		theOdo.twist.twist.angular.y = unknown	
-		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
-		pubBottom.publish(theDVL)
-		backupjson = getJson
 
 		theOdo.twist.twist.angular.z = unknown
 		global initZ
