@@ -255,7 +255,6 @@ def publishDVLdata():
         # Odometry topic
         twist_msg.header.stamp = rospy.Time.now()
         twist_msg.header.frame_id = "dvl_link"
-        twist_msg.child_frame_id = "dvl_link"
         if (
             abs(theDVL.velocity.x) < 10
             and abs(theDVL.velocity.y) < 10
