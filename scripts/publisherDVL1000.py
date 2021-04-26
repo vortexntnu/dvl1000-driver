@@ -252,7 +252,7 @@ def publishDVLdata():
         pubBottom.publish(theDVL)
         backupjson = getJson
 
-        # Odometry topic
+        # Twist topic
         twist_msg.header.stamp = rospy.Time.now()
         twist_msg.header.frame_id = "dvl_link"
         if (
@@ -260,20 +260,12 @@ def publishDVLdata():
             and abs(theDVL.velocity.y) < 10
             and abs(theDVL.velocity.z) < 10
         ):
+            # add velocities
             twist_msg.twist.twist.linear.x = theDVL.velocity.x
             twist_msg.twist.twist.linear.y = theDVL.velocity.y
             twist_msg.twist.twist.linear.z = theDVL.velocity.z
-        else:
-            rospy.logdebug(
-                "Invalid DVL velocity data x: %f, y: %f, z: %f"
-                % (theDVL.velocity.x, theDVL.velocity.y, theDVL.velocity.z)
-            )
-
-        if (
-            (BottomXyzFom1Data != 10)
-            and (BottomXyzFom2Data != 10)
-            and (BottomXyzFomZbest != 10)
-        ):
+            
+            # add covariance
             twist_msg.twist.covariance = [
                 BottomXyzFom1Data * BottomXyzFom1Data,
                 unknown,
@@ -312,8 +304,16 @@ def publishDVLdata():
                 unknown,
                 unknown,
             ]
-        twist_pub.publish(twist_msg)
 
+            # publsih twist
+            twist_pub.publish(twist_msg)
+            
+        else:
+            rospy.logdebug(
+                "Invalid DVL velocity data x: %f, y: %f, z: %f"
+                % (theDVL.velocity.x, theDVL.velocity.y, theDVL.velocity.z)
+            )
+            
         # Pressure topic
         thePressure.header.stamp = rospy.Time.now()
         thePressure.header.frame_id = "dvl_link"
