@@ -5,7 +5,7 @@ ROS package, based on python, to read data from the Nortek DVL1000 and feed it t
 
 Publishes
 * __/dvl/dvl_msg__ linear velocities, altitude and beam data (custom DVL msg)
-* __/dvl/odom__ odometry containing only linear velocities (nav_msgs/Odometry)
+* __/dvl/twist__ linear velocities (nav_msgs/Odometry)
 * __/dvl/pressure__ fluid pressure (sensor_msgs/FluidPressure)
 * __/dvl/altitude__ distance above ground (std_msgs/Float64)
 
