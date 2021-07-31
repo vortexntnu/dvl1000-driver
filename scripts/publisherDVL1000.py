@@ -8,7 +8,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseWithCovariance
 from geometry_msgs.msg import TwistWithCovariance
 
-class DVL1000:
+class DVL1000_Ros_Driver:
 
 	def __init__(self, rate=1):
 		
@@ -151,7 +151,7 @@ if __name__ == '__main__':
 		rospy.init_node('DVL1000', anonymous=False)
 		rate = rospy.Rate(8) # 8hz
 
-		dvl = DVL1000(rate)
+		dvl = DVL1000_Ros_Driver(rate)
 
 		while not rospy.is_shutdown():
 			dvl.spin()
