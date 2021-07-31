@@ -15,8 +15,8 @@ def cycleDVL():
 	retVal = ''
 	for n in range(5):
 		result = ws.recv()
-		theData = json.loads(result)
-		if theData["id"] == 8219:
+		dvl_data = json.loads(result)
+		if dvl_data["id"] == 8219:
 			retVal = result
 	return retVal
 
@@ -28,137 +28,136 @@ def publishDVLdata():
 	#Get JSON Data
 	getJson = cycleDVL()
 	try:
-		theData = json.loads(getJson)
+		dvl_data = json.loads(getJson)
 	except:
-		theData = json.loads(backupjson)
+		dvl_data = json.loads(backupjson)
 
 	#Alternating data each time data is recieved. Each with unique ID(4123 and 8219) and dataset. Using IF to sort this out
 	#8219 seem to have additional information like Status, Speed of Sound, Temperature
 	#More data if more modes of tracking is turned on. IDs 4125 and 8221 belongs to Water Tracking mode.
 	#IDs 4123 and 8219 belongs to Bottom Track mode.
 
-	pubBottom = rospy.Publisher('/auv/dvl_twist', DVL, queue_size=10)
-	pubOdo = rospy.Publisher('/auv/odom', Odometry, queue_size=10)
-	pubPressure = rospy.Publisher('/auv/Pressure', FluidPressure, queue_size=10)
+	bottom_track_pub = rospy.Publisher('/auv/dvl_twist', DVL, queue_size=10)
+	odometry_pub = rospy.Publisher('/auv/odom', Odometry, queue_size=10)
+	pressure_pub = rospy.Publisher('/auv/Pressure', FluidPressure, queue_size=10)
 	#pubWater = rospy.Publisher('sensors/dvl/water', DVL, queue_size=10)
 
-	theDVL = DVL()
-	theDVLBeam = DVLBeam()
-	theOdo = Odometry()
-	thePressure = FluidPressure()
+	dvl_msg = DVL()
+	odometry_msg = Odometry()
+	pressure_msg = FluidPressure()
 
 	#Bottom-Trackingnumpy square
-	if theData["id"] == 8219:
+	if dvl_data["id"] == 8219:
 		#Parsing Variables
-		BottomID = theData["id"]
-		BottomMode = theData["name"]
-		BottomTime = theData["timeStampStr"]
-		BottomStatus = theData["frames"][1]["inputs"][0]["lines"][0]["data"][0]
+		BottomID = dvl_data["id"]
+		BottomMode = dvl_data["name"]
+		BottomTime = dvl_data["timeStampStr"]
+		BottomStatus = dvl_data["frames"][1]["inputs"][0]["lines"][0]["data"][0]
 		
 		#Speed of Sound variables
-		BottomSpeedOfSoundMin = theData["frames"][2]["inputs"][0]["min"]
-		BottomSpeedOfSoundMax = theData["frames"][2]["inputs"][0]["max"]
-		BottomSpeedOfSoundUnit = theData["frames"][2]["inputs"][0]["units"]
-		BottomSpeedOfSoundData = theData["frames"][2]["inputs"][0]["lines"][0]["data"][0]
+		BottomSpeedOfSoundMin = dvl_data["frames"][2]["inputs"][0]["min"]
+		BottomSpeedOfSoundMax = dvl_data["frames"][2]["inputs"][0]["max"]
+		BottomSpeedOfSoundUnit = dvl_data["frames"][2]["inputs"][0]["units"]
+		BottomSpeedOfSoundData = dvl_data["frames"][2]["inputs"][0]["lines"][0]["data"][0]
 		
 		#Temperature varliables
-		BottomTempMin = theData["frames"][3]["inputs"][0]["min"]
-		BottomTempMax = theData["frames"][3]["inputs"][0]["max"]
-		BottomTempUnit = theData["frames"][3]["inputs"][0]["units"]
-		BottomTempData = theData["frames"][3]["inputs"][0]["lines"][0]["data"][0]
+		BottomTempMin = dvl_data["frames"][3]["inputs"][0]["min"]
+		BottomTempMax = dvl_data["frames"][3]["inputs"][0]["max"]
+		BottomTempUnit = dvl_data["frames"][3]["inputs"][0]["units"]
+		BottomTempData = dvl_data["frames"][3]["inputs"][0]["lines"][0]["data"][0]
 		
 		#Pressure variables
-		BottomPressureName = theData["frames"][4]["inputs"][0]["name"]
-		BottomPressureMin = theData["frames"][4]["inputs"][0]["min"]
-		BottomPressureMax = theData["frames"][4]["inputs"][0]["max"]
-		BottomPressureData = theData["frames"][4]["inputs"][0]["lines"][0]["data"][0]
-		BottomPressureUnit = theData["frames"][4]["inputs"][0]["units"]
+		BottomPressureName = dvl_data["frames"][4]["inputs"][0]["name"]
+		BottomPressureMin = dvl_data["frames"][4]["inputs"][0]["min"]
+		BottomPressureMax = dvl_data["frames"][4]["inputs"][0]["max"]
+		BottomPressureData = dvl_data["frames"][4]["inputs"][0]["lines"][0]["data"][0]
+		BottomPressureUnit = dvl_data["frames"][4]["inputs"][0]["units"]
 		
 		#Beam Velocity Variables
-		BottomBeamVelMin = theData["frames"][5]["inputs"][0]["min"]
-		BottomBeamVelMax = theData["frames"][5]["inputs"][0]["max"]
-		BottomBeamVelUnit = theData["frames"][5]["inputs"][0]["units"]
-		BottomBeamVel1Data = theData["frames"][5]["inputs"][0]["lines"][0]["data"][0]
-		BottomBeamVel2Data = theData["frames"][5]["inputs"][0]["lines"][1]["data"][0]
-		BottomBeamVel3Data = theData["frames"][5]["inputs"][0]["lines"][2]["data"][0]
-		BottomBeamVel4Data = theData["frames"][5]["inputs"][0]["lines"][3]["data"][0]
-		BottomBeamVel1Valid = theData["frames"][5]["inputs"][0]["lines"][0]["valid"]
-		BottomBeamVel2Valid = theData["frames"][5]["inputs"][0]["lines"][1]["valid"]
-		BottomBeamVel3Valid = theData["frames"][5]["inputs"][0]["lines"][2]["valid"]
-		BottomBeamVel4Valid = theData["frames"][5]["inputs"][0]["lines"][3]["valid"]
+		BottomBeamVelMin = dvl_data["frames"][5]["inputs"][0]["min"]
+		BottomBeamVelMax = dvl_data["frames"][5]["inputs"][0]["max"]
+		BottomBeamVelUnit = dvl_data["frames"][5]["inputs"][0]["units"]
+		BottomBeamVel1Data = dvl_data["frames"][5]["inputs"][0]["lines"][0]["data"][0]
+		BottomBeamVel2Data = dvl_data["frames"][5]["inputs"][0]["lines"][1]["data"][0]
+		BottomBeamVel3Data = dvl_data["frames"][5]["inputs"][0]["lines"][2]["data"][0]
+		BottomBeamVel4Data = dvl_data["frames"][5]["inputs"][0]["lines"][3]["data"][0]
+		BottomBeamVel1Valid = dvl_data["frames"][5]["inputs"][0]["lines"][0]["valid"]
+		BottomBeamVel2Valid = dvl_data["frames"][5]["inputs"][0]["lines"][1]["valid"]
+		BottomBeamVel3Valid = dvl_data["frames"][5]["inputs"][0]["lines"][2]["valid"]
+		BottomBeamVel4Valid = dvl_data["frames"][5]["inputs"][0]["lines"][3]["valid"]
 		
 		#Beam FOM Variables
-		BottomBeamFomMin = theData["frames"][5]["inputs"][1]["min"]
-		BottomBeamFomMax = theData["frames"][5]["inputs"][1]["max"]
-		BottomBeamFomUnit = theData["frames"][5]["inputs"][1]["units"]
-		BottomBeamFom1Data = theData["frames"][5]["inputs"][1]["lines"][0]["data"][0]
-		BottomBeamFom2Data = theData["frames"][5]["inputs"][1]["lines"][1]["data"][0]
-		BottomBeamFom3Data = theData["frames"][5]["inputs"][1]["lines"][2]["data"][0]
-		BottomBeamFom4Data = theData["frames"][5]["inputs"][1]["lines"][3]["data"][0]
-		BottomBeamFom1Valid = theData["frames"][5]["inputs"][1]["lines"][0]["valid"]
-		BottomBeamFom2Valid = theData["frames"][5]["inputs"][1]["lines"][1]["valid"]
-		BottomBeamFom3Valid = theData["frames"][5]["inputs"][1]["lines"][2]["valid"]
-		BottomBeamFom4Valid = theData["frames"][5]["inputs"][1]["lines"][3]["valid"]
+		BottomBeamFomMin = dvl_data["frames"][5]["inputs"][1]["min"]
+		BottomBeamFomMax = dvl_data["frames"][5]["inputs"][1]["max"]
+		BottomBeamFomUnit = dvl_data["frames"][5]["inputs"][1]["units"]
+		BottomBeamFom1Data = dvl_data["frames"][5]["inputs"][1]["lines"][0]["data"][0]
+		BottomBeamFom2Data = dvl_data["frames"][5]["inputs"][1]["lines"][1]["data"][0]
+		BottomBeamFom3Data = dvl_data["frames"][5]["inputs"][1]["lines"][2]["data"][0]
+		BottomBeamFom4Data = dvl_data["frames"][5]["inputs"][1]["lines"][3]["data"][0]
+		BottomBeamFom1Valid = dvl_data["frames"][5]["inputs"][1]["lines"][0]["valid"]
+		BottomBeamFom2Valid = dvl_data["frames"][5]["inputs"][1]["lines"][1]["valid"]
+		BottomBeamFom3Valid = dvl_data["frames"][5]["inputs"][1]["lines"][2]["valid"]
+		BottomBeamFom4Valid = dvl_data["frames"][5]["inputs"][1]["lines"][3]["valid"]
 		
 		#Beam Dist Variables
-		BottomBeamDistMin = theData["frames"][5]["inputs"][2]["min"]
-		BottomBeamDistMax = theData["frames"][5]["inputs"][2]["max"]
-		BottomBeamDistUnit = theData["frames"][5]["inputs"][2]["units"]
-		BottomBeamDist1Data = theData["frames"][5]["inputs"][2]["lines"][0]["data"][0]
-		BottomBeamDist2Data = theData["frames"][5]["inputs"][2]["lines"][1]["data"][0]
-		BottomBeamDist3Data = theData["frames"][5]["inputs"][2]["lines"][2]["data"][0]
-		BottomBeamDist4Data = theData["frames"][5]["inputs"][2]["lines"][3]["data"][0]
-		BottomBeamDist1Valid = theData["frames"][5]["inputs"][2]["lines"][0]["valid"]
-		BottomBeamDist2Valid = theData["frames"][5]["inputs"][2]["lines"][1]["valid"]
-		BottomBeamDist3Valid = theData["frames"][5]["inputs"][2]["lines"][2]["valid"]
-		BottomBeamDist4Valid = theData["frames"][5]["inputs"][2]["lines"][3]["valid"]
+		BottomBeamDistMin = dvl_data["frames"][5]["inputs"][2]["min"]
+		BottomBeamDistMax = dvl_data["frames"][5]["inputs"][2]["max"]
+		BottomBeamDistUnit = dvl_data["frames"][5]["inputs"][2]["units"]
+		BottomBeamDist1Data = dvl_data["frames"][5]["inputs"][2]["lines"][0]["data"][0]
+		BottomBeamDist2Data = dvl_data["frames"][5]["inputs"][2]["lines"][1]["data"][0]
+		BottomBeamDist3Data = dvl_data["frames"][5]["inputs"][2]["lines"][2]["data"][0]
+		BottomBeamDist4Data = dvl_data["frames"][5]["inputs"][2]["lines"][3]["data"][0]
+		BottomBeamDist1Valid = dvl_data["frames"][5]["inputs"][2]["lines"][0]["valid"]
+		BottomBeamDist2Valid = dvl_data["frames"][5]["inputs"][2]["lines"][1]["valid"]
+		BottomBeamDist3Valid = dvl_data["frames"][5]["inputs"][2]["lines"][2]["valid"]
+		BottomBeamDist4Valid = dvl_data["frames"][5]["inputs"][2]["lines"][3]["valid"]
 		
 		#XYZ Velocity Variables
-		BottomXyzVelMin = theData["frames"][6]["inputs"][0]["min"]
-		BottomXyzVelMax = theData["frames"][6]["inputs"][0]["max"]
-		BottomXyzVelUnit = theData["frames"][6]["inputs"][0]["units"]
-		BottomXyzVel1Data = theData["frames"][6]["inputs"][0]["lines"][0]["data"][0]
-		BottomXyzVel2Data = theData["frames"][6]["inputs"][0]["lines"][1]["data"][0]
-		BottomXyzVel3Data = theData["frames"][6]["inputs"][0]["lines"][2]["data"][0]
-		BottomXyzVel4Data = theData["frames"][6]["inputs"][0]["lines"][3]["data"][0]
-		BottomXyzVel1Valid = theData["frames"][6]["inputs"][0]["lines"][0]["valid"]
-		BottomXyzVel2Valid = theData["frames"][6]["inputs"][0]["lines"][1]["valid"]
-		BottomXyzVel3Valid = theData["frames"][6]["inputs"][0]["lines"][2]["valid"]
-		BottomXyzVel4Valid = theData["frames"][6]["inputs"][0]["lines"][3]["valid"]
+		BottomXyzVelMin = dvl_data["frames"][6]["inputs"][0]["min"]
+		BottomXyzVelMax = dvl_data["frames"][6]["inputs"][0]["max"]
+		BottomXyzVelUnit = dvl_data["frames"][6]["inputs"][0]["units"]
+		BottomXyzVel1Data = dvl_data["frames"][6]["inputs"][0]["lines"][0]["data"][0]
+		BottomXyzVel2Data = dvl_data["frames"][6]["inputs"][0]["lines"][1]["data"][0]
+		BottomXyzVel3Data = dvl_data["frames"][6]["inputs"][0]["lines"][2]["data"][0]
+		BottomXyzVel4Data = dvl_data["frames"][6]["inputs"][0]["lines"][3]["data"][0]
+		BottomXyzVel1Valid = dvl_data["frames"][6]["inputs"][0]["lines"][0]["valid"]
+		BottomXyzVel2Valid = dvl_data["frames"][6]["inputs"][0]["lines"][1]["valid"]
+		BottomXyzVel3Valid = dvl_data["frames"][6]["inputs"][0]["lines"][2]["valid"]
+		BottomXyzVel4Valid = dvl_data["frames"][6]["inputs"][0]["lines"][3]["valid"]
 		
 		#XYZ FOM Variables
-		BottomXyzFomMin = theData["frames"][6]["inputs"][1]["min"]
-		BottomXyzFomMax = theData["frames"][6]["inputs"][1]["max"]
-		BottomXyzFomUnit = theData["frames"][6]["inputs"][1]["units"]
-		BottomXyzFom1Data = theData["frames"][6]["inputs"][1]["lines"][0]["data"][0]
-		BottomXyzFom2Data = theData["frames"][6]["inputs"][1]["lines"][1]["data"][0]
-		BottomXyzFom3Data = theData["frames"][6]["inputs"][1]["lines"][2]["data"][0]
-		BottomXyzFom4Data = theData["frames"][6]["inputs"][1]["lines"][3]["data"][0]
-		BottomXyzFom1Valid = theData["frames"][6]["inputs"][1]["lines"][0]["valid"]
-		BottomXyzFom2Valid = theData["frames"][6]["inputs"][1]["lines"][1]["valid"]
-		BottomXyzFom3Valid = theData["frames"][6]["inputs"][1]["lines"][2]["valid"]
-		BottomXyzFom4Valid = theData["frames"][6]["inputs"][1]["lines"][3]["valid"]
+		BottomXyzFomMin = dvl_data["frames"][6]["inputs"][1]["min"]
+		BottomXyzFomMax = dvl_data["frames"][6]["inputs"][1]["max"]
+		BottomXyzFomUnit = dvl_data["frames"][6]["inputs"][1]["units"]
+		BottomXyzFom1Data = dvl_data["frames"][6]["inputs"][1]["lines"][0]["data"][0]
+		BottomXyzFom2Data = dvl_data["frames"][6]["inputs"][1]["lines"][1]["data"][0]
+		BottomXyzFom3Data = dvl_data["frames"][6]["inputs"][1]["lines"][2]["data"][0]
+		BottomXyzFom4Data = dvl_data["frames"][6]["inputs"][1]["lines"][3]["data"][0]
+		BottomXyzFom1Valid = dvl_data["frames"][6]["inputs"][1]["lines"][0]["valid"]
+		BottomXyzFom2Valid = dvl_data["frames"][6]["inputs"][1]["lines"][1]["valid"]
+		BottomXyzFom3Valid = dvl_data["frames"][6]["inputs"][1]["lines"][2]["valid"]
+		BottomXyzFom4Valid = dvl_data["frames"][6]["inputs"][1]["lines"][3]["valid"]
 		
-		theDVL.header.stamp = rospy.Time.now()
-		theDVL.header.frame_id = "dvl_link"
-		theDVL.velocity.x = BottomXyzVel1Data
-		theDVL.velocity.y = BottomXyzVel2Data
+		dvl_msg.header.stamp = rospy.Time.now()
+		dvl_msg.header.frame_id = "dvl_link"
+		dvl_msg.velocity.x = BottomXyzVel1Data
+		dvl_msg.velocity.y = BottomXyzVel2Data
 		if BottomXyzFom3Data > BottomXyzFom4Data:
-			theDVL.velocity.z = BottomXyzVel4Data
+			dvl_msg.velocity.z = BottomXyzVel4Data
 			BottomXyzFomZbest = BottomXyzFom4Data
 		else:
-			theDVL.velocity.z = BottomXyzVel3Data
+			dvl_msg.velocity.z = BottomXyzVel3Data
 			BottomXyzFomZbest = BottomXyzFom3Data
 			
 		#Doing covariances
 		velocity_covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest]
 		
 		#Feeding message
-		theDVL.velocity_covariance = velocity_covariance
-		theDVL.altitude = ((BottomBeamDist1Data + BottomBeamDist2Data + BottomBeamDist3Data + BottomBeamDist4Data) / 4)
+		dvl_msg.velocity_covariance = velocity_covariance
+		dvl_msg.altitude = ((BottomBeamDist1Data + BottomBeamDist2Data + BottomBeamDist3Data + BottomBeamDist4Data) / 4)
 		
 		#Individual beam data
-		beam1 = theDVLBeam
+		beam1 = DVLBeam()
 		beam1.range = BottomBeamDist1Data
 		beam1.range_covariance = 0.0001 #TODO: find accurate value
 		beam1.velocity = BottomBeamVel1Data
@@ -172,7 +171,7 @@ def publishDVLdata():
 		beam1.pose.pose.orientation.z = -0.047
 		beam1.pose.pose.orientation.w = 0.953
 		
-		beam2 = theDVLBeam
+		beam2 = DVLBeam()
 		beam2.range = BottomBeamDist2Data
 		beam2.range_covariance = 0.0001 #TODO: find accurate value
 		beam2.velocity = BottomBeamVel2Data
@@ -186,7 +185,7 @@ def publishDVLdata():
 		beam2.pose.pose.orientation.z = 0.047
 		beam2.pose.pose.orientation.w = -0.953
 		
-		beam3 = theDVLBeam
+		beam3 = DVLBeam()
 		beam3.range = BottomBeamDist3Data
 		beam3.range_covariance = 0.0001 #TODO: find accurate value
 		beam3.velocity = BottomBeamVel3Data
@@ -200,7 +199,7 @@ def publishDVLdata():
 		beam3.pose.pose.orientation.z = 0.707
 		beam3.pose.pose.orientation.w = -0.641
 		
-		beam4 = theDVLBeam
+		beam4 = DVLBeam()
 		beam4.range = BottomBeamDist4Data
 		beam4.range_covariance = 0.0001 #TODO: find accurate value
 		beam4.velocity = BottomBeamVel4Data
@@ -214,7 +213,7 @@ def publishDVLdata():
 		beam4.pose.pose.orientation.z = 0.641
 		beam4.pose.pose.orientation.w = 0.707
 		
-		theDVL.beams = [beam1, beam2, beam3, beam4]
+		dvl_msg.beams = [beam1, beam2, beam3, beam4]
 			
 		#Check page 49 for Z1 and Z2 and use FOM to evaluate each, 
 		#Covariance is a matrix with variance in the diagonal fields
@@ -224,49 +223,46 @@ def publishDVLdata():
 		
 		#pub = rospy.Publisher('sensors/dvl/bottom', NORTEK, queue_size=10)
 		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
-		pubBottom.publish(theDVL)
+		bottom_track_pub.publish(dvl_msg)
 		backupjson = getJson
         
 		#Odometry topic
-		theOdo.header.stamp = rospy.Time.now()
-		theOdo.header.frame_id = "dvl_link"
-		theOdo.child_frame_id = "dvl_link"
-		if abs(theDVL.velocity.x) < 10 and abs(theDVL.velocity.y) < 10 and abs(theDVL.velocity.z) < 10:
-			theOdo.twist.twist.linear.x = theDVL.velocity.x
-			theOdo.twist.twist.linear.y = theDVL.velocity.y
-			theOdo.twist.twist.linear.z = theDVL.velocity.z
+		odometry_msg.header.stamp = rospy.Time.now()
+		odometry_msg.header.frame_id = "dvl_link"
+		odometry_msg.child_frame_id = "dvl_link"
+		if abs(dvl_msg.velocity.x) < 10 and abs(dvl_msg.velocity.y) < 10 and abs(dvl_msg.velocity.z) < 10:
+			odometry_msg.twist.twist.linear.x = dvl_msg.velocity.x
+			odometry_msg.twist.twist.linear.y = dvl_msg.velocity.y
+			odometry_msg.twist.twist.linear.z = dvl_msg.velocity.z
 		else:
 			rospy.logdebug(
-				"Invalid DVL velocity data x: %f, y: %f, z: %f" % (theDVL.velocity.x, theDVL.velocity.y, theDVL.velocity.z)
+				"Invalid DVL velocity data x: %f, y: %f, z: %f" % (dvl_msg.velocity.x, dvl_msg.velocity.y, dvl_msg.velocity.z)
 			)
 		
-		theOdo.twist.twist.angular.x = unknown
-		theOdo.twist.twist.angular.y = unknown	
-		rospy.loginfo("Publishing sensor data from DVL Bottom-Track %s" % rospy.get_time())
-		pubBottom.publish(theDVL)
-		backupjson = getJson
+		odometry_msg.twist.twist.angular.x = unknown
+		odometry_msg.twist.twist.angular.y = unknown	
+		odometry_msg.twist.twist.angular.z = unknown
 
-		theOdo.twist.twist.angular.z = unknown
 		global initZ
-		theOdo.pose.pose.position.z=-((BottomPressureData*10000)*10)/(997*9.81)
-		if (initZ == 0) and (abs(theDVL.velocity.x) < 10):
-			initZ = theOdo.pose.pose.position.z
+		odometry_msg.pose.pose.position.z=-((BottomPressureData*10000)*10)/(997*9.81)
+		if (initZ == 0) and (abs(dvl_msg.velocity.x) < 10):
+			initZ = odometry_msg.pose.pose.position.z
 			rospy.logdebug(
 				"InitZ set to: %f" % (initZ)
 			)
 			
 		if (BottomXyzFom1Data != 10) and (BottomXyzFom2Data != 10) and (BottomXyzFomZbest != 10):
-			theOdo.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
-		pubOdo.publish(theOdo)
+			odometry_msg.twist.covariance = [BottomXyzFom1Data * BottomXyzFom1Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFom2Data * BottomXyzFom2Data, unknown, unknown, unknown, unknown, unknown, unknown, BottomXyzFomZbest * BottomXyzFomZbest, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
+		odometry_pub.publish(odometry_msg)
 
 
         
 		#Pressure topic
-		thePressure.header.stamp = rospy.Time.now()
-		thePressure.header.frame_id = "dvl_link"
-		thePressure.fluid_pressure = BottomPressureData * 10000 #Convert dbar to Pascal
-		thePressure.variance = 30*30 #Should do a more accurate meassurement of the variance
-		pubPressure.publish(thePressure)
+		pressure_msg.header.stamp = rospy.Time.now()
+		pressure_msg.header.frame_id = "dvl_link"
+		pressure_msg.fluid_pressure = BottomPressureData * 10000 #Convert dbar to Pascal
+		pressure_msg.variance = 30*30 #Should do a more accurate meassurement of the variance
+		pressure_pub.publish(pressure_msg)
 	
     
 	#while not rospy.is_shutdown():
