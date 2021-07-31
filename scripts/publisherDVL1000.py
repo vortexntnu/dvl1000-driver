@@ -21,7 +21,6 @@ class DVL1000:
 		self.seq = 0
 		self.rate = rate
 		self.data_id = 8219 # ID 8219 is for Bottom Track mode. Alternative is 4123 (contains less data); see data sheet for more info
-		self.json_dvl_data_backup = ''
 		self.invalid_velocity = -32
 
 		self.odom_pub = rospy.Publisher('/dvl/odom', Odometry, queue_size=10)
@@ -29,27 +28,26 @@ class DVL1000:
 	def __del__(self):
 		self.ws.close()
 
+	def get_dvl_measurements(self):
 
-	def cycleDVL(self):
-		return_data = ''
-		for n in range(5):
-			result = self.ws.recv()
-			dvl_data = json.loads(result)
-			if dvl_data["id"] == self.data_id:
-				return_data = result
-		return return_data
+		dvl_data = self.ws.recv()
+		dvl_data_json = json.loads(dvl_data)
+
+		dvl_data_valid = False
+		if dvl_data_json["id"] == self.data_id:
+			dvl_data_valid = True
+
+		return dvl_data_json, dvl_data_valid
+
+	def pressure_to_depth(self, pressure):
+		return -((pressure*10000)*10)/(997*9.81)
 
 
 	def spin(self):
 
-		#Get JSON Data
-		json_dvl_data = self.cycleDVL()
-		try:
-			dvl_data = json.loads(json_dvl_data)
-		except:
-			dvl_data = json.loads(self.json_dvl_data_backup)
+		dvl_data, dvl_data_valid = self.get_dvl_measurements()
 
-		if dvl_data["id"] == self.data_id:
+		if dvl_data_valid:
 			# Pressure measurements
 			measured_pressure = dvl_data["frames"][4]["inputs"][0]["lines"][0]["data"][0]
 			
@@ -147,10 +145,6 @@ class DVL1000:
 
 		self.seq += 1
 		self.rate.sleep()
-
-	def pressure_to_depth(self, pressure):
-		return -((pressure*10000)*10)/(997*9.81)
-
 
 if __name__ == '__main__':
 	try:
