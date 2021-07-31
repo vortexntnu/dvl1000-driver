@@ -127,3 +127,72 @@ BottomXyzFom1Valid = dvl_data["frames"][6]["inputs"][1]["lines"][0]["valid"]
 BottomXyzFom2Valid = dvl_data["frames"][6]["inputs"][1]["lines"][1]["valid"]  
 BottomXyzFom3Valid = dvl_data["frames"][6]["inputs"][1]["lines"][2]["valid"]  
 BottomXyzFom4Valid = dvl_data["frames"][6]["inputs"][1]["lines"][3]["valid"]  
+
+
+## Old dvl message data
+dvl_msg.header.stamp = rospy.Time.now()  
+dvl_msg.header.frame_id = "dvl_link"  
+dvl_msg.velocity.x = measured_velocity_x  
+dvl_msg.velocity.y = measured_velocity_y  
+dvl_msg.velocity.z = measured_velocity_z_best  
+
+velocity_covariance = [fom_velocity_x * fom_velocity_x, unknown, unknown, unknown, fom_velocity_y * fom_velocity_y, unknown, unknown, unknown, fom_velocity_z_best * fom_velocity_z_best]  
+dvl_msg.velocity_covariance = velocity_covariance  
+dvl_msg.altitude = ((measured_altitude_beam1 + measured_altitude_beam2 + measured_altitude_beam3 + measured_altitude_beam4) / 4)  
+			
+#Individual beam data  
+beam1 = DVLBeam()  
+beam1.range = measured_altitude_beam1  
+beam1.range_covariance = 0.0001 #TODO: find accurate value  
+beam1.velocity = measured_velocity_beam1  
+beam1.velocity_covariance = fom_beam1 * fom_beam1  
+beam1.pose.header.stamp = rospy.Time.now()  
+beam1.pose.pose.position.x = 0.283  
+beam1.pose.pose.position.y = 0.283  
+beam1.pose.pose.position.z = 0  
+beam1.pose.pose.orientation.x = 0.211 #Estimating values here. 25 degree tilt and 4 cm from origo  
+beam1.pose.pose.orientation.y = 0.211  
+beam1.pose.pose.orientation.z = -0.047  
+beam1.pose.pose.orientation.w = 0.953  
+
+beam2 = DVLBeam()  
+beam2.range = measured_altitude_beam2  
+beam2.range_covariance = 0.0001 #TODO: find accurate value  
+beam2.velocity = measured_velocity_beam2  
+beam2.velocity_covariance = fom_beam2 * fom_beam2  
+beam2.pose.header.stamp = rospy.Time.now()  
+beam2.pose.pose.position.x = 0.283  
+beam2.pose.pose.position.y = -0.283  
+beam2.pose.pose.position.z = 0  
+beam2.pose.pose.orientation.x = -0.211 #Estimating values here. 25 degree tilt and 4 cm from origo  
+beam2.pose.pose.orientation.y = -0.211  
+beam2.pose.pose.orientation.z = 0.047  
+beam2.pose.pose.orientation.w = -0.953  
+
+beam3 = DVLBeam()  
+beam3.range = measured_altitude_beam3  
+beam3.range_covariance = 0.0001 #TODO: find accurate value  
+beam3.velocity = measured_velocity_beam3  
+beam3.velocity_covariance = fom_beam3 * fom_beam3  
+beam3.pose.header.stamp = rospy.Time.now()  
+beam3.pose.pose.position.x = -0.283  
+beam3.pose.pose.position.y = -0.283  
+beam3.pose.pose.position.z = 0  
+beam3.pose.pose.orientation.x = -0.299 #Estimating values here. 25 degree tilt and 4 cm from origo  
+beam3.pose.pose.orientation.y = 0  
+beam3.pose.pose.orientation.z = 0.707  
+beam3.pose.pose.orientation.w = -0.641  
+
+beam4 = DVLBeam()  
+beam4.range = measured_altitude_beam4  
+beam4.range_covariance = 0.0001 #TODO: find accurate value  
+beam4.velocity = measured_velocity_beam4  
+beam4.velocity_covariance = fom_beam4 * fom_beam4  
+beam4.pose.header.stamp = rospy.Time.now()  
+beam4.pose.pose.position.x = -0.283  
+beam4.pose.pose.position.y = 0.283  
+beam4.pose.pose.position.z = 0  
+beam4.pose.pose.orientation.x = 0 #Estimating values here. 25 degree tilt and 4 cm from origo  
+beam4.pose.pose.orientation.y = 0.299  
+beam4.pose.pose.orientation.z = 0.641  
+beam4.pose.pose.orientation.w = 0.707  
