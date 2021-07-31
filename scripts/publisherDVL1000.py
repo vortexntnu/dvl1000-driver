@@ -91,12 +91,6 @@ class DVL1000_Ros_Driver:
 				fom_velocity_z_best = fom_velocity_z_1
 				measured_velocity_z_best = measured_velocity_z_1
 
-			#Check page 49 for Z1 and Z2 and use FOM to evaluate each, 
-			#Covariance is a matrix with variance in the diagonal fields
-			#[var(x), cov(x,y) cov(x,z)|cov(x,y), var(y), cov(y,z)|cov(x,z), cov(y,z), var(z)]
-			#Concluded with using FOB*FOB as an estimate for variance
-			#Try to get Variance out of FOM
-
 			# Create twist part of odometry message
 			twist_msg = TwistWithCovariance()
 			twist_msg.twist.linear.x = measured_velocity_x
