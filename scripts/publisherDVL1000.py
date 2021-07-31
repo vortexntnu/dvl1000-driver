@@ -10,20 +10,24 @@ from geometry_msgs.msg import TwistWithCovariance
 
 class DVL1000_Ros_Driver:
 
-	def __init__(self, rate=1):
+	def __init__(self, rate=None):
 		
+		if rate is None:
+			self.rate = rospy.Rate(1)
+		else:
+			self.rate = rate
+
+		self.seq = 0
+		self.data_id = 8219 # ID 8219 is for Bottom Track mode. Alternative is 4123 (contains less data); see data sheet for more info
+		self.invalid_velocity = -32
+
+		self.odom_pub = rospy.Publisher('/dvl/odom', Odometry, queue_size=10)
+
 		websocket_address = rospy.get_param("/dvl/websocket_address", "ws://192.168.0.96:10100")
 		self.ws = create_connection(websocket_address, subprotocols=["data-transfer-nortek"])
 		print("Connecting to DVL1000 via websocket...")
 		result = self.ws.recv()
 		print("Status: '%s'" % result)
-
-		self.seq = 0
-		self.rate = rate
-		self.data_id = 8219 # ID 8219 is for Bottom Track mode. Alternative is 4123 (contains less data); see data sheet for more info
-		self.invalid_velocity = -32
-
-		self.odom_pub = rospy.Publisher('/dvl/odom', Odometry, queue_size=10)
 
 	def __del__(self):
 		self.ws.close()
