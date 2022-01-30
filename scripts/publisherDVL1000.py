@@ -21,7 +21,7 @@ class DVL1000_Ros_Driver:
 		self.data_id = 8219 # ID 8219 is for Bottom Track mode. Alternative is 4123 (contains less data); see data sheet for more info
 		self.invalid_velocity = -32
 
-		self.odom_pub = rospy.Publisher('/dvl/odom', Odometry, queue_size=10)
+		self.odom_pub = rospy.Publisher('/dvl/odom', Odometry, queue_size=1)
 
 		websocket_address = rospy.get_param("/dvl/websocket_address", "ws://192.168.0.96:10100")
 		self.ws = create_connection(websocket_address, subprotocols=["data-transfer-nortek"])
@@ -33,24 +33,24 @@ class DVL1000_Ros_Driver:
 		self.ws.close()
 
 	def get_dvl_measurements(self):
+		for i in range (5):
+		    dvl_data = self.ws.recv()
+		    dvl_data_json = json.loads(dvl_data)
 
-		dvl_data = self.ws.recv()
-		dvl_data_json = json.loads(dvl_data)
-
-		dvl_data_valid = False
-		if dvl_data_json["id"] == self.data_id:
-			dvl_data_valid = True
-
+		    dvl_data_valid = False
+		    if dvl_data_json["id"] == self.data_id:
+				dvl_data_valid = True
+			
 		return dvl_data_json, dvl_data_valid
 
 	def pressure_to_depth(self, pressure):
-		return -((pressure*10000)*10)/(997*9.81)
+		return ((pressure*10000)*10)/(997*9.81)
 
 
 	def spin(self):
 
 		dvl_data, dvl_data_valid = self.get_dvl_measurements()
-
+                
 		if dvl_data_valid:
 			# Pressure measurements
 			measured_pressure = dvl_data["frames"][4]["inputs"][0]["lines"][0]["data"][0]
@@ -90,6 +90,7 @@ class DVL1000_Ros_Driver:
 			else:
 				fom_velocity_z_best = fom_velocity_z_1
 				measured_velocity_z_best = measured_velocity_z_1
+			
 
 			# Create twist part of odometry message
 			twist_msg = TwistWithCovariance()
@@ -102,7 +103,7 @@ class DVL1000_Ros_Driver:
 			var_x = fom_velocity_x * fom_velocity_x
 			var_y = fom_velocity_y * fom_velocity_y
 			var_z = fom_velocity_z_best * fom_velocity_z_best
-			twist_msgcovariance = [var_x,  0,      0,   0, 0, 0,
+			twist_msg.covariance = [var_x,  0,      0,   0, 0, 0,
 			  					     0,   var_y,   0,   0, 0, 0,
 			  					     0,    0,    var_z, 0, 0, 0,
 			  					     0,    0,      0,   0, 0, 0,
@@ -135,7 +136,7 @@ class DVL1000_Ros_Driver:
 			# Only publish odometry if valid velocity data
 			if (measured_velocity_x < self.invalid_velocity or 
 			    measured_velocity_y < self.invalid_velocity or 
-			    measured_velocity_z < self.invalid_velocity
+			    measured_velocity_z_best < self.invalid_velocity
 			):
 				rospy.logwarn("DVL velocity measurement invalid! Skipping.")
 			else:
